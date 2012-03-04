@@ -11,21 +11,27 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 
 -- Abstract layer class
 layer = rwtk_core.class(function(_self, properties)
+	_self.border = true
+	_self.padding = 1
 	_self.menu = nil
 	_self.menuSelectionIndex = 0
 	_self.menuSubSelectionIndex = 0
 	_self.visible = false
-	
-	_self.x = 1
-	_self.y = 1
+
 	_self.width, _self.height = term.getSize()
 	
+	-- Copy properties
 	if properties then
 		for key, value in pairs(properties) do
 			_self[key] = value
 		end
 	end
 	
+	if not _self.x or not _self.y then
+		_self.x, _self.y = rwtk_draw.centeredCoordinates(_self.width, _self.height)
+	end
+	
+	-- Default menu alignment: top
 	if _self.menu and not _self.menu.align then
 		_self.menu.align = 'top'
 	end
@@ -102,46 +108,58 @@ layer = rwtk_core.class(function(_self, properties)
 end)
 
 function layer:draw()
+	local padding = 0
+
+	-- Draw frame
+	if self.border then
+		rwtk_draw.drawRectangle(self.x, self.y, self.width, self.height)
+		padding = 1
+	end
+	
+	local mx = self.x + padding
+	local my = self.y + padding
+	
+	-- Draw title
+	if self.title then
+		rwtk_draw.drawHorizontalLine(self.x, self.y + 1 + padding, self.width, self.border)
+		term.setCursorPos(self.x + 1 + padding, self.y + padding)
+		term.write(rwtk_string.ellipsis(self.title, self.width - 2 - 2 * padding))
+		my = my + 2
+	end
+	
 	-- Calculate inner dimensions
 	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions()
 	
+	
 	-- Call event handler
-	if self.onDraw then
+	if self.onDraw then	
 		term.setCursorPos(innerX, innerY)
 		self.onDraw(self, innerX, innerY, innerWidth, innerHeight)
 	end
 	
 	-- Draw menu
-	self:drawMenu(innerX, innerY - 2, innerWidth, innerHeight)
-end
-
-function layer:drawMenu(innerX, innerY, innerWidth, innerHeight)
--- Draw menu
 	if self.menu then
-		local mx = innerX
-		local my
-		
 		if self.menu.align == 'bottom' then
-			my = innerHeight - 1
-		elseif self.menu.align == 'top' then
-			my = innerY
+			my = self.height - 2 - padding
 		end
 	
 		-- Clear menu area
-		rwtk_draw.fillRectangle(mx, my, innerWidth, 2, ' ')
+		rwtk_draw.fillRectangle(mx, my, self.width - 2 * padding, 2, ' ')
 		
 		-- Draw menu area
+		if self.menu.align == 'bottom' then
+			rwtk_draw.drawHorizontalLine(self.x, my, self.width, self.border)
+		elseif self.menu.align == 'top' then
+			rwtk_draw.drawHorizontalLine(self.x, my + 1, self.width, self.border)
+		end
+		
+		-- Draw menu entries
 		local _x = mx
 		local _y = my
 		if self.menu.align == 'bottom' then
-			rwtk_draw.drawHorizontalLine(mx, my, innerWidth, false)
 			_y = my + 1
-		elseif self.menu.align == 'top' then
-			rwtk_draw.drawHorizontalLine(mx, my + 1, innerWidth, false)
 		end
 		local __y = _y
-		
-		-- Draw menu entries
 		for index, item in ipairs(self.menu.items) do
 			term.setCursorPos(_x, __y)
 			if index == self.menuSelectionIndex then
@@ -202,6 +220,18 @@ function layer:innerDimensions()
 	local innerY = self.y
 	local innerWidth = self.width
 	local innerHeight = self.height
+	
+	if self.border then
+		innerX = innerX + 1
+		innerY = innerY + 1
+		innerWidth = innerWidth - 2
+		innerHeight = innerHeight - 2
+	end
+	
+	if self.title then
+		innerY = innerY + 2
+		innerHeight = innerHeight - 2
+	end
 	
 	if self.menu then
 		innerHeight = innerHeight - 2

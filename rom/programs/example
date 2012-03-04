@@ -16,7 +16,8 @@ myApplication = rwtk_app.create({
 	onStart = function(self)
 		-- Load config
 		myConfig = rwtk_app_config.load('myConfig.conf', {
-			counter = 1
+			counter = 1,
+			subCounter = 1
 		})
 	end,
 	
@@ -37,6 +38,7 @@ myApplication = rwtk_app.create({
 
 -- Create Main Layer
 myLayer = rwtk_app_layer.create({
+	border = false,
 	visible = true,
 	menu = {
 		align = 'top',
@@ -48,9 +50,10 @@ myLayer = rwtk_app_layer.create({
 						text = 'Clear',
 						onAction = function(self)
 							myConfig.counter = 0
+							myConfig.subCounter = 0
 						end
 					}, { 
-						text = 'Save as',
+						text = 'Surprise',
 						keyCode = 31, -- S
 						onAction = function(self)
 							self.parent:getLayer('mySaveAsDialog').visible = true
@@ -83,19 +86,39 @@ myLayer = rwtk_app_layer.create({
 })
 
 -- Create Save As Dialog
-mySaveAsDialog = rwtk_app_layer_window.create({
-	width = 30, 
-	height = 10,
+mySaveAsDialog = rwtk_app_layer.create({
+	width = 32, 
+	height = 14,
 	title = 'Save As...',
-	
+	menu = {
+		align = 'top',
+		items = {
+			{
+				text = 'Foo',
+				items = {
+					{ 
+						text = 'Close',
+						onAction = function(self)
+							self.visible = false
+							self.parent:focusLayer('myLayer')
+						end
+					}
+				}
+			}
+		}
+	},
+
 	onDraw = function(self, innerX, innerY, innerWidth, innerHeight)
-		term.setCursorPos(innerX, innerY)
-		term.write('Hello World!')
+		for i = 1, myConfig.subCounter do
+			term.write('X')
+			if i % innerWidth == 0 then
+				term.setCursorPos(innerX, innerY + math.floor(i / innerWidth))
+			end
+		end
 	end,
 	
 	onKey = function(self, keyCode)
-		self.visible = false
-		self.parent:focusLayer('myLayer')
+		myConfig.subCounter = myConfig.subCounter + 1
 	end
 })
 

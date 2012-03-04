@@ -52,5 +52,9 @@ end
 
 function centeredCoordinates(w, h)
 	local _w, _h = term.getSize()
-	return math.floor(_w / 2) - math.floor(w / 2), math.floor(_h / 2) - math.floor(h / 2)
+	local x = math.floor(_w / 2 - w / 2)
+	local y = math.floor(_h / 2 - h / 2)
+	if x < 1 then x = 1 end
+	if y < 1 then y = 1 end
+	return x, y 
 end
