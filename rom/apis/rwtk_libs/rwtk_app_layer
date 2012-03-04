@@ -1,0 +1,253 @@
+-----------------------------------------------------------------------------
+-- Redworks Toolkit
+-- Author: MewK
+--
+-- This program is released under the MIT License (MIT).
+-----------------------------------------------------------------------------
+
+-- Using:
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_draw')
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
+
+-- Abstract layer class
+layer = rwtk_core.class(function(_self, properties)
+	_self.menu = nil
+	_self.menuSelectionIndex = 0
+	_self.menuSubSelectionIndex = 0
+	_self.visible = false
+	
+	_self.x = 1
+	_self.y = 1
+	_self.width, _self.height = term.getSize()
+	
+	if properties then
+		for key, value in pairs(properties) do
+			_self[key] = value
+		end
+	end
+	
+	if _self.menu and not _self.menu.align then
+		_self.menu.align = 'top'
+	end
+	
+	-- Menu key event handler
+	if _self.onKey then
+		_self.__onKey = _self.onKey
+	end
+	
+	_self.onKey = function(self, keyCode)
+		if self.menu then
+			-- Toggle menu (Control)
+			if keyCode == 29 then
+				self:toggleMenu()
+			
+			-- Navigate menu
+			elseif self:isMenuActive() then
+				local menuItem = self:selectedMenuItem()
+				
+				-- Up
+				if keyCode == 200 then
+					if menuItem.items then
+						self.menuSubSelectionIndex = self.menuSubSelectionIndex - 1
+						if self.menuSubSelectionIndex < 1 then
+							self.menuSubSelectionIndex = # menuItem.items
+						end
+					end
+		
+				-- Down
+				elseif keyCode == 208 then
+					if menuItem.items then
+						self.menuSubSelectionIndex = self.menuSubSelectionIndex + 1
+						if self.menuSubSelectionIndex > # menuItem.items then
+							self.menuSubSelectionIndex = 1
+						end
+					end
+		
+				-- Left
+				elseif keyCode == 203 then
+					self.menuSelectionIndex = self.menuSelectionIndex - 1
+					if self.menuSelectionIndex < 1 then
+						self.menuSelectionIndex = # self.menu.items
+					end
+					self.menuSubSelectionIndex = 1
+		
+				-- Right
+				elseif keyCode == 205 then
+					self.menuSelectionIndex = self.menuSelectionIndex + 1
+					if self.menuSelectionIndex > # self.menu.items then
+						self.menuSelectionIndex = 1
+					end
+					self.menuSubSelectionIndex = 1
+
+				-- Enter
+				elseif keyCode == 28 then
+					if menuItem.onAction then
+						menuItem.onAction(self)
+					elseif menuItem.items then
+						local subMenuItem = self:selectedSubMenuItem()
+						if subMenuItem and subMenuItem.onAction then
+							subMenuItem.onAction(self)
+						end
+					end
+					self:focusMenu(false)
+				end
+			end
+		end
+		
+		-- Call event handler
+		if self.__onKey then
+			self.__onKey(self, keyCode)
+		end
+	end
+end)
+
+function layer:draw()
+	-- Calculate inner dimensions
+	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions()
+	
+	-- Call event handler
+	if self.onDraw then
+		term.setCursorPos(innerX, innerY)
+		self.onDraw(self, innerX, innerY, innerWidth, innerHeight)
+	end
+	
+	-- Draw menu
+	self:drawMenu(innerX, innerY - 2, innerWidth, innerHeight)
+end
+
+function layer:drawMenu(innerX, innerY, innerWidth, innerHeight)
+-- Draw menu
+	if self.menu then
+		local mx = innerX
+		local my
+		
+		if self.menu.align == 'bottom' then
+			my = innerHeight - 1
+		elseif self.menu.align == 'top' then
+			my = innerY
+		end
+	
+		-- Clear menu area
+		rwtk_draw.fillRectangle(mx, my, innerWidth, 2, ' ')
+		
+		-- Draw menu area
+		local _x = mx
+		local _y = my
+		if self.menu.align == 'bottom' then
+			rwtk_draw.drawHorizontalLine(mx, my, innerWidth, false)
+			_y = my + 1
+		elseif self.menu.align == 'top' then
+			rwtk_draw.drawHorizontalLine(mx, my + 1, innerWidth, false)
+		end
+		local __y = _y
+		
+		-- Draw menu entries
+		for index, item in ipairs(self.menu.items) do
+			term.setCursorPos(_x, __y)
+			if index == self.menuSelectionIndex then
+				term.write('['..item.text..']')
+					
+				-- Draw sub-menu
+				if item.items then
+					-- Get longest sub-item
+					local subItemMaxWidth = 0
+					for subIndex, subItem in ipairs(item.items) do
+						local subItemWidth = # subItem.text
+						if subItemWidth > subItemMaxWidth then
+							subItemMaxWidth = subItemWidth
+						end
+					end
+					
+					-- Calculate sub-menu dimensions
+					local subMenuWidth = subItemMaxWidth + 6
+					local subMenuHeight = # item.items + 2
+					
+					-- Draw menu border
+					if self.menu.align == 'bottom' then
+						_y = my - subMenuHeight + 1
+						rwtk_draw.drawHorizontalLine(_x, _y, subMenuWidth, true)
+						rwtk_draw.drawVerticalLine(_x, _y, subMenuHeight, true)
+						rwtk_draw.drawVerticalLine(_x + subMenuWidth - 1, _y, subMenuHeight, true)
+						_y = _y + 1
+					elseif self.menu.align == 'top' then
+						_y = my + 1		
+						rwtk_draw.drawHorizontalLine(_x, _y + subMenuHeight - 1, subMenuWidth, true)
+						rwtk_draw.drawVerticalLine(_x, _y, subMenuHeight, true)
+						rwtk_draw.drawVerticalLine(_x + subMenuWidth - 1, _y, subMenuHeight, true)
+						_y = _y + 1
+					end
+					
+					-- Draw sub-menu items
+					for subIndex, subItem in ipairs(item.items) do
+						term.setCursorPos(_x + 1, _y)
+						if subIndex == self.menuSubSelectionIndex then
+							term.write(' ['..rwtk_string.pad(subItem.text, subItemMaxWidth, ' ')..'] ')
+						else
+							term.write('  '..rwtk_string.pad(subItem.text, subItemMaxWidth, ' ')..'  ')
+						end
+						_y = _y + 1
+					end
+				end
+			else
+				term.write(' '..item.text..' ')
+			end
+			
+			_x = _x + # item.text + 2
+		end
+	end
+end
+
+function layer:innerDimensions()
+	local innerX = self.x
+	local innerY = self.y
+	local innerWidth = self.width
+	local innerHeight = self.height
+	
+	if self.menu then
+		innerHeight = innerHeight - 2
+		if self.menu.align == 'top' then
+			innerY = innerY + 2
+		end
+	end
+	
+	return innerX, innerY, innerWidth, innerHeight
+end
+
+function layer:isMenuActive()
+	return self.menuSelectionIndex > 0
+end
+
+function layer:focusMenu(menuFocused)
+	if menuFocused then
+		self.menuSelectionIndex = 1
+		self.menuSubSelectionIndex = 1
+	else
+		self.menuSelectionIndex = 0
+		self.menuSubSelectionIndex = 0
+	end
+end
+
+function layer:toggleMenu()
+	self:focusMenu(not self:isMenuActive())
+end
+
+function layer:selectedMenuItem()
+	if self.menu then
+		return self.menu.items[self.menuSelectionIndex]
+	end
+	return false
+end
+
+function layer:selectedSubMenuItem()
+	if self.menu then
+		local item = self:selectedMenuItem();
+		if item and item.items then
+			return item.items[self.menuSubSelectionIndex]
+		end
+	end
+	return false
+end
+
+function create(properties)
+	return layer(properties);
+end

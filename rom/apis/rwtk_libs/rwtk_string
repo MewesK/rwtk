@@ -1,0 +1,20 @@
+-----------------------------------------------------------------------------
+-- Redworks Toolkit
+-- Author: MewK
+--
+-- This program is released under the MIT License (MIT).
+-----------------------------------------------------------------------------
+
+function ellipsis(text, width)
+	if width >= 3 and # text > 0 and # text > width then
+		text = string.sub(text, 0, width - 3)..'...'
+	end
+	return text
+end
+
+function pad(text, width, char)
+	if # text <= width and # char == 1 then 
+		return text..string.rep(char, width - # text)
+	end
+	return text
+end

@@ -1,0 +1,108 @@
+-----------------------------------------------------------------------------
+-- Redworks Toolkit Example Application
+-- Author: MewK
+--
+-- This program is released under the MIT License (MIT).
+-----------------------------------------------------------------------------
+
+local myApplication
+local myConfig
+local myLayer
+local mySaveAsDialog
+
+-- Create Application
+myApplication = rwtk_app.create({
+	-- onStart
+	onStart = function(self)
+		-- Load config
+		myConfig = rwtk_app_config.load('myConfig.conf', {
+			counter = 1
+		})
+	end,
+	
+	-- onStop
+	onStop = function(self)
+		-- Save config
+		rwtk_app_config.save('myConfig.conf', myConfig)
+		--myConfig:save()
+	end,
+	
+	-- onKey
+	onKey = function(self, keyCode)
+		if keyCode == 18 then	-- E
+			self:stop()
+		end
+	end
+})
+
+-- Create Main Layer
+myLayer = rwtk_app_layer.create({
+	visible = true,
+	menu = {
+		align = 'top',
+		items = {
+			{
+				text = 'File',
+				items = {
+					{ 
+						text = 'Clear',
+						onAction = function(self)
+							myConfig.counter = 0
+						end
+					}, { 
+						text = 'Save as',
+						keyCode = 31, -- S
+						onAction = function(self)
+							self.parent:getLayer('mySaveAsDialog').visible = true
+							self.parent:focusLayer('mySaveAsDialog')
+						end
+					}
+				}
+			}, { 
+				text = 'Exit',
+				keyCode = 18, -- E
+				onAction = function(self)
+					self.parent:stop()
+				end
+			}
+		}
+	},
+
+	onDraw = function(self, innerX, innerY, innerWidth, innerHeight)
+		for i = 1, myConfig.counter do
+			term.write('O')
+			if i % innerWidth == 0 then
+				term.setCursorPos(innerX, innerY + math.floor(i / innerWidth))
+			end
+		end
+	end,
+	
+	onKey = function(self, keyCode)
+		myConfig.counter = myConfig.counter + 1
+	end
+})
+
+-- Create Save As Dialog
+mySaveAsDialog = rwtk_app_layer_window.create({
+	width = 30, 
+	height = 10,
+	title = 'Save As...',
+	
+	onDraw = function(self, innerX, innerY, innerWidth, innerHeight)
+		term.setCursorPos(innerX, innerY)
+		term.write('Hello World!')
+	end,
+	
+	onKey = function(self, keyCode)
+		self.visible = false
+		self.parent:focusLayer('myLayer')
+	end
+})
+
+-- Prepare application
+myApplication:addLayer('myLayer', myLayer)
+myApplication:addLayer('mySaveAsDialog', mySaveAsDialog)
+myApplication:focusLayer('myLayer');
+		
+-- Start application
+myApplication:start()

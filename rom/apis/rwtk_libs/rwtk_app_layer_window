@@ -1,0 +1,72 @@
+-----------------------------------------------------------------------------
+-- Redworks Toolkit
+-- Author: MewK
+--
+-- This program is released under the MIT License (MIT).
+-----------------------------------------------------------------------------
+
+-- Using:
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_draw')
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_layer')
+
+-- Abstract window class
+local window = rwtk_core.class(rwtk_app_layer.layer, function(_self, properties)
+	rwtk_app_layer.layer.init(_self, properties)
+	
+	_self.padding = 1
+	
+	-- centered
+	if not properties.x or not properties.y then
+		_self.x, _self.y = rwtk_draw.centeredCoordinates(_self.width, _self.height)
+	end
+end)
+
+function window:draw()
+	-- Draw frame
+	rwtk_draw.drawRectangle(self.x, self.y, self.width, self.height)
+	if self.title then
+		rwtk_draw.drawHorizontalLine(self.x, self.y + 2, self.width, true)
+		
+		term.setCursorPos(self.x + 2, self.y + 1)
+		term.write(rwtk_string.ellipsis(self.title, self.width - 4))
+	end
+	
+	-- Calculate inner dimensions
+	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions()
+	
+	-- Call event handler
+	if self.onDraw then	
+		term.setCursorPos(innerX, innerY)
+		self.onDraw(self, innerX, innerY, innerWidth, innerHeight)
+	end
+	
+	-- Draw menu
+	if self.menu then
+		if self.menu.align == 'top' then
+			self:drawMenu(innerX, innerY - 2, innerWidth, innerHeigh - 2)
+		else
+			self:drawMenu(innerX, innerY, innerWidth, innerHeight - 2)
+		end
+	end
+end
+
+function window:innerDimensions()
+	local innerX, innerY, innerWidth, innerHeight = self._base.innerDimensions(self)
+	
+	innerX = innerX + 1
+	innerY = innerY + 1
+	innerWidth = innerWidth - 2
+	innerHeight = innerHeight - 2
+	
+	if self.title then
+		innerY = innerY + 2
+		innerHeight = innerHeight - 2
+	end
+	
+	return innerX, innerY, innerWidth, innerHeight
+end
+
+function create(properties)
+	return window(properties);
+end

@@ -1,0 +1,172 @@
+-----------------------------------------------------------------------------
+-- Redworks Toolkit
+-- Author: MewK
+--
+-- This program is released under the MIT License (MIT).
+-----------------------------------------------------------------------------
+
+-- Using:
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_core')
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_layer')
+
+-- Abstract app class
+local app = rwtk_core.class(function(_self, properties)
+	_self.focusIndex = 0
+	_self.layers = {}
+	_self.running = false
+	_self.visible = false
+	
+	if properties then
+		for key, value in pairs(properties) do
+			_self[key] = value
+		end
+	end
+end)
+
+function app:getLayer(name)
+	for index, layer in ipairs(self.layers) do
+		if layer.name == name then
+			return layer, index 
+		end
+	end
+	return nil, nil
+end
+
+function app:getActiveLayer()
+	if self.focusIndex > 0 then
+		return self.layers[self.focusIndex]
+	end
+	return false
+end
+
+function app:removeLayer(name)
+	-- Get layer
+	local layer, index = self:getLayer(name)
+	
+	-- Remove layer
+	if index then
+		table.remove(self.layers, index)
+		-- Change focus
+		if index == self.focusIndex then
+			self.focusIndex = self.focusIndex - 1
+		end
+	end
+end
+	
+function app:addLayer(name, layer)
+	-- Remove layer if exists
+	self:removeLayer(name)
+	
+	-- Add layer
+	layer.name = name
+	layer.parent = self
+	table.insert(self.layers, layer)
+end
+
+function app:focusLayer(name)
+	-- Get layer
+	local layer, index = self:getLayer(name)
+	
+	-- Focus layer
+	if index then
+		self.focusIndex = index
+	else
+		self.focusIndex = 0
+	end
+end
+
+function app:draw()
+	term.clear()
+	term.setCursorPos(1, 1)
+
+	local activeLayer = self:getActiveLayer()
+	for index, layer in ipairs(self.layers) do
+		if layer.visible then
+			layer:draw()
+		end
+	end
+end
+
+function app:callEvent(eventHandler, ...)
+	if self[eventHandler] then 
+		self[eventHandler](self, ...) 
+	end
+	
+	local activeLayer = self:getActiveLayer()
+	if activeLayer and activeLayer[eventHandler] then
+		activeLayer[eventHandler](activeLayer, ...)
+	end
+end
+
+function app:start()
+	self.running = true
+	
+	-- onStart
+	self:callEvent('onStart')
+	
+	-- Draw screen
+	self:draw()
+	
+	while self.running do
+		-- onLoop
+		self:callEvent('onLoop')
+	
+		-- Pull event
+		local event, param1, param2 = os.pullEvent()
+		
+		-- onEvent
+		self:callEvent('onEvent', event, param1, param2)
+			
+		-- onAlarm
+		if event == 'alarm' then
+			self:callEvent('onAlarm', param1)
+		
+		-- onChar
+		elseif event == 'char' then
+			self:callEvent('onChar', param1)
+			
+		-- onDisk
+		elseif event == 'disk' then
+			self:callEvent('onDisk', param1)
+			
+		-- onDiskEject
+		elseif event == 'disk_eject' then
+			self:callEvent('onDiskEject', param1)
+		
+		-- onKey
+		elseif event == 'key' then
+			self:callEvent('onKey', param1)
+			
+		-- onRednet
+		elseif event == 'rednet_message' then
+			self:callEvent('onRednet', param1, param2)
+			
+		-- onRedstone
+		elseif event == 'redstone' then
+			self:callEvent('onRedstone')
+			
+		-- onTimer
+		elseif event == 'timer' then
+			self:callEvent('onTimer', param1)
+			
+		end
+		
+		-- Draw screen
+		self:draw()
+	end
+	
+	-- onStop
+	self:callEvent('onStop')
+	
+	-- Clear screen
+	term.clear()
+	term.setCursorPos(1, 1)
+end
+
+function app:stop()
+	self.running = false
+end
+
+function create(properties)
+	return app(properties)
+end

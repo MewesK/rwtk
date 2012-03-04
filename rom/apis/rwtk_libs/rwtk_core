@@ -1,0 +1,59 @@
+-----------------------------------------------------------------------------
+-- Redworks Toolkit
+-- Author: http://lua-users.org
+-- Author: MewK
+--
+-- This program is released under the MIT License (MIT).
+-----------------------------------------------------------------------------
+
+function class(base, init)
+	local newInstance = {}
+	
+	-- handle constructor without base class
+	if not init and type(base) == 'function' then
+		init = base
+		base = nil
+		
+	-- handle base class
+	elseif type(base) == 'table' then
+		-- our new class is a shallow copy of the base class
+		for i,v in pairs(base) do
+			newInstance[i] = v
+		end
+		newInstance._base = base
+	end
+	
+	-- the class will be the metatable for all its objects
+	newInstance.__index = newInstance
+	newInstance.init = init
+	newInstance.is_a = function(self, klass)
+		local m = getmetatable(self)
+		
+		while m do 
+			if m == klass then 
+				return true 
+			end
+			m = m._base
+		end
+		
+		return false
+	end
+	
+	-- expose a constructor which can be called by <classname>(<args>)
+	setmetatable(newInstance, {
+		__call = function(class_tbl, ...)
+			local obj = {}
+			setmetatable(obj, newInstance)
+			
+			if init then
+				init(obj, ...)
+			elseif base and base.init then
+				base.init(obj, ...)
+			end
+			
+			return obj
+		end
+	})
+	
+	return newInstance
+end

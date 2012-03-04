@@ -1,0 +1,14 @@
+-----------------------------------------------------------------------------
+-- Redworks Toolkit
+-- Author: MewK
+--
+-- This program is released under the MIT License (MIT).
+-----------------------------------------------------------------------------
+
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_app')
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_config')
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_layer')
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_layer_window')
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_core')
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_draw')
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')

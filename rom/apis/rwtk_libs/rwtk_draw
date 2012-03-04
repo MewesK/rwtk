@@ -1,0 +1,56 @@
+-----------------------------------------------------------------------------
+-- Redworks Toolkit
+-- Author: MewK
+--
+-- This program is released under the MIT License (MIT).
+-----------------------------------------------------------------------------
+
+-- Using:
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
+
+function drawHorizontalLine(x, y, length, drawCorner, text)
+    term.setCursorPos(x, y)
+	if drawCorner and length >= 2 then
+		term.write('+'..string.rep('-', length - 2)..'+')
+	else
+		term.write(string.rep('-', length))
+	end
+	if text then
+		text = rwtk_string.ellipsis(text, length - 4)
+		term.setCursorPos(x + 1, y)
+		term.write(' '..text..' ')
+	end
+end
+
+function drawVerticalLine(x, y, length, drawCorner)
+	for i = 1, length do
+		term.setCursorPos(x, y + i - 1)
+		if drawCorner and (i == 1 or i == length) then
+			term.write('+')
+		else
+			term.write('|')
+		end
+	end
+end
+
+function fillRectangle(x, y, w, h, char)
+	for y = y, y + h - 1 do
+		term.setCursorPos(x, y)
+		term.write(string.rep(char, w - 1))
+	end	
+end
+
+function drawRectangle(x, y, w, h)
+	fillRectangle(x, y, w, h, ' ')
+	
+	drawVerticalLine(x, y, h, false)
+	drawVerticalLine(x + w - 1, y, h, false)
+	
+	drawHorizontalLine(x, y, w, true)
+	drawHorizontalLine(x, y + h - 1, w, true)
+end
+
+function centeredCoordinates(w, h)
+	local _w, _h = term.getSize()
+	return math.floor(_w / 2) - math.floor(w / 2), math.floor(_h / 2) - math.floor(h / 2)
+end
