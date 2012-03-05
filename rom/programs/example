@@ -25,7 +25,6 @@ myApplication = rwtk_app.create({
 	onStop = function(self)
 		-- Save config
 		rwtk_app_config.save('myConfig.conf', myConfig)
-		--myConfig:save()
 	end,
 	
 	-- onKey
@@ -41,7 +40,7 @@ myLayer = rwtk_app_layer.create({
 	border = false,
 	visible = true,
 	menu = {
-		align = 'top',
+		align = 'bottom',
 		items = {
 			{
 				text = 'File',
@@ -91,7 +90,6 @@ mySaveAsDialog = rwtk_app_layer.create({
 	height = 14,
 	title = 'Surprise',
 	menu = {
-		align = 'top',
 		items = {
 			{
 				text = 'Foo',
