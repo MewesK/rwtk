@@ -5,12 +5,31 @@
 -- This program is released under the MIT License (MIT).
 -----------------------------------------------------------------------------
 
-os.loadAPI('/rom/apis/rwtk_libs/rwtk_app')
-os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_config')
-os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_layer')
-os.loadAPI('/rom/apis/rwtk_libs/rwtk_core')
-os.loadAPI('/rom/apis/rwtk_libs/rwtk_draw')
-os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
-os.loadAPI('/rom/apis/rwtk_libs/rwtk_string_encoding')
-os.loadAPI('/rom/apis/rwtk_libs/rwtk_string_hash')
-os.loadAPI('/rom/apis/rwtk_libs/rwtk_string_encryption')
+local function loadLib( name )
+	local tEnv = {}
+	setmetatable( tEnv, { __index = _G } )
+	local fnAPI, err = loadfile( "rom/apis/rwtk_libs/"..name )
+	if fnAPI then
+		setfenv( fnAPI, tEnv )
+		fnAPI()
+	else
+		print( err )
+		return false
+	end
+	local tLib = {}
+	for k,v in pairs( tEnv ) do
+		tLib[k] =  v
+	end
+	tEnv = nil
+	return tLib
+end
+
+app = loadLib("rwtk_app")
+app.config = loadLib("rwtk_app_config")
+app.layer = loadLib("rwtk_app_layer")
+core = loadLib("rwtk_core")
+draw = loadLib("rwtk_draw")
+string = loadLib("string")
+string.encoding = loadLib("string_encoding")
+string.hash = loadLib("string_hash")
+string.encryption = loadLib("string_encryption")
