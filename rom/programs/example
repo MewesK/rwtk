@@ -11,11 +11,11 @@ local myLayer
 local mySaveAsDialog
 
 -- Create Application
-myApplication = rwtk_app.create({
+myApplication = rwtk.app.create({
 	-- onStart
 	onStart = function(self)
 		-- Load config
-		myConfig = rwtk_app_config.load('myConfig.conf', {
+		myConfig = rwtk.app.config.load('myConfig.conf', {
 			counter = 1,
 			subCounter = 1
 		})
@@ -24,7 +24,7 @@ myApplication = rwtk_app.create({
 	-- onStop
 	onStop = function(self)
 		-- Save config
-		rwtk_app_config.save('myConfig.conf', myConfig)
+		rwtk.app.config.save('myConfig.conf', myConfig)
 	end,
 	
 	-- onKey
@@ -36,7 +36,7 @@ myApplication = rwtk_app.create({
 })
 
 -- Create Main Layer
-myLayer = rwtk_app_layer.create({
+myLayer = rwtk.app.layer.create({
 	border = false,
 	visible = true,
 	menu = {
@@ -85,7 +85,7 @@ myLayer = rwtk_app_layer.create({
 })
 
 -- Create Save As Dialog
-mySaveAsDialog = rwtk_app_layer.create({
+mySaveAsDialog = rwtk.app.layer.create({
 	width = 32, 
 	height = 14,
 	title = 'Surprise',
