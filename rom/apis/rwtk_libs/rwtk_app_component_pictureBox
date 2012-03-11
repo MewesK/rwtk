@@ -15,7 +15,9 @@ pictureBox = rwtk_core.class(rwtk_app_component_label.label, function(_self, pro
 	_self.border = true
 	_self.padding = 1
 	_self.visible = false
-	_self.width, _self.height = term.getSize()
+	
+	-- Call base constructor
+	rwtk_app_component_label.label.init(_self, properties)
 	
 	-- Create pixelMatrix
 	_self.pictureMatrix = {}
@@ -25,9 +27,6 @@ pictureBox = rwtk_core.class(rwtk_app_component_label.label, function(_self, pro
 			_self.pictureMatrix[y][x] = ' '
 		end
 	end
-	
-	-- Call base constructor
-	rwtk_app_component_label.label.init(_self, properties)
 	
 	_self.onKey = function(self, keyCode)
 		-- Call event handler
@@ -71,7 +70,7 @@ function pictureBox:resize(width, height)
 	for y = 1, self.height do
 		self.pictureMatrix[y] = {}
 		for x = 1, self.width do
-			_self.pictureMatrix[y][x] = ' '
+			self.pictureMatrix[y][x] = ' '
 		end
 	end
 end
@@ -147,7 +146,7 @@ function pictureBox:getValueByColor(color, randomChar)
 	return nearestChars[1]
 end
 
-function pictureBox:loadBitmap(filename)
+function pictureBox:loadBitmap(filename, randomChar)
 	-- bytes (litte endian) to int
 	local function bytesToNumber(bytes, signed)
 		if not bytes or # bytes == 0 then
@@ -232,7 +231,7 @@ function pictureBox:loadBitmap(filename)
 				local row = {}
 				for x = 1, width * 3, 3 do
 					-- Convert RGB => grayscale => text
-					row[(x + 2) / 3] = self:getValueByColor(math.floor((currentValue[x] + currentValue[x + 1] + currentValue[x + 2]) / 3), false)
+					row[(x + 2) / 3] = self:getValueByColor(math.floor((currentValue[x] + currentValue[x + 1] + currentValue[x + 2]) / 3), randomChar)
 				end
 				-- Reverse row order
 				self.pictureMatrix[height + 1 - y] = row

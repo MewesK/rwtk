@@ -6,6 +6,7 @@
 -----------------------------------------------------------------------------
 
 local myApplication
+local myPictureBox
 local myLayer
 
 local pictureIndex = 0
@@ -20,19 +21,19 @@ myApplication = rwtk_app.create({
 	end
 })
 
+-- Create PictureBox
+myPictureBox = rwtk_app_component_pictureBox.create({
+	border = false,
+	x = 1,
+	y = 1,
+	width = 50,
+	height = 18
+});
+
 -- Create Main Layer
 myLayer = rwtk_app_layer.create({
 	border = false,
 	visible = true,
-	components = {
-		rwtk_app_component_pictureBox.create({
-			border = false,
-			x = 1,
-			y = 1,
-			width = 50,
-			height = 18,
-		})
-	},
 	
 	onKey = function(self, keyCode)
 		pictureIndex = pictureIndex + 1
@@ -41,31 +42,32 @@ myLayer = rwtk_app_layer.create({
 		end
 		
 		if pictureIndex == 1 then
-			self:loadBitmap('nyan2.bmp', false)
+			myPictureBox:loadBitmap('nyan2.bmp', false)
 		elseif pictureIndex == 2 then
-			self:loadBitmap('nyan2.bmp', true)
+			myPictureBox:loadBitmap('nyan2.bmp', true)
 		elseif pictureIndex == 3 then
-			for y = 1, _h do 
-				for x = 1, _w do
-					self:setPixel(x, y, self:getValueByColor(math.ceil((y * x) / 3.53), false))
+			myPictureBox:resize(50, 18)
+			for y = 1, myPictureBox.height do 
+				for x = 1, myPictureBox.width do
+					myPictureBox:setPixel(x, y, myPictureBox:getValueByColor(math.ceil((y * x) / 3.53), false))
 				end
 			end
 		elseif pictureIndex == 4 then
-			for y = 1, _h do 
-				for x = 1, _w do
-					self:setPixel(x, y, self:getValueByColor(math.ceil((y * x) / 3.53), true))
+			for y = 1, myPictureBox.height do 
+				for x = 1, myPictureBox.width do
+					myPictureBox:setPixel(x, y, myPictureBox:getValueByColor(math.ceil((y * x) / 3.53), true))
 				end
 			end
 		elseif pictureIndex == 5 then
-			for y = 1, _h do 
-				for x = 1, _w do
-					self:setPixel(x, y, self:getValueByColor(math.ceil(x * 5.1), false))
+			for y = 1, myPictureBox.height do 
+				for x = 1, myPictureBox.width do
+					myPictureBox:setPixel(x, y, myPictureBox:getValueByColor(math.ceil(x * 5.1), false))
 				end
 			end
 		elseif pictureIndex == 6 then
-			for y = 1, _h do 
-				for x = 1, _w do
-					self:setPixel(x, y, self:getValueByColor(math.ceil(x * 5.1), true))
+			for y = 1, myPictureBox.height do 
+				for x = 1, myPictureBox.width do
+					myPictureBox:setPixel(x, y, myPictureBox:getValueByColor(math.ceil(x * 5.1), true))
 				end
 			end
 		end
@@ -73,9 +75,10 @@ myLayer = rwtk_app_layer.create({
 })
 
 -- Prepare application
+myLayer:addComponent('myPictureBox', myPictureBox);
+myLayer:onKey()
 myApplication:addLayer('myLayer', myLayer)
 myApplication:focusLayer('myLayer');
-myLayer:onKey(nil)
 		
 -- Start application
 myApplication:start()
