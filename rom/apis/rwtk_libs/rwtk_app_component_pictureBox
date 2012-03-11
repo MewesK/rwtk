@@ -38,18 +38,21 @@ end)
 
 -- General functions
 
-function pictureBox:draw()
+function pictureBox:draw(innerX, innerY, innerWidth, innerHeight)
+	-- Calculate inner dimensions
+	local _innerX, _innerY, _innerWidth, _innerHeight = self:innerDimensions(innerX, innerY, innerWidth, innerHeight)
+	
 	-- Draw pixels
 	for y = 1, # self.pictureMatrix do
 		for x = 1, # self.pictureMatrix[y] do
-			term.setCursorPos(x, y)
+			term.setCursorPos(_innerX + x - 1, _innerY + y - 1)
 			term.write(self:getPixel(x, y))
 		end
 	end
 	
 	-- Draw frame
 	if self.border then
-		rwtk_draw.drawRectangle(self.x, self.y, self.width, self.height)
+		rwtk_draw.drawRectangle(innerX + self.x, innerY + self.y, self.width, self.height)
 	end
 	
 	-- Draw base.base

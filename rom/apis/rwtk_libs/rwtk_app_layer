@@ -144,7 +144,7 @@ function layer:draw()
 	-- Draw components
 	for index, component in ipairs(self.components) do
 		if component.visible then
-			component:draw()
+			component:draw(innerX, innerY, innerWidth, innerHeight)
 		end
 	end
 	

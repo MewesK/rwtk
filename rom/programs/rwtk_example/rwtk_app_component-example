@@ -1,0 +1,46 @@
+-----------------------------------------------------------------------------
+-- Redworks Toolkit Example Application
+-- Author: MewK
+--
+-- This program is released under the MIT License (MIT).
+-----------------------------------------------------------------------------
+
+local myApplication
+local myLabel
+local myLayer
+
+local pictureIndex = 0
+
+-- Create Application
+myApplication = rwtk_app.create({
+	-- onKey
+	onKey = function(self, keyCode)
+		if keyCode == 18 then	-- E
+			self:stop()
+		end
+	end
+})
+
+-- Create PictureBox
+myLabel = rwtk_app_component_label.create({
+	border = true,
+	x = 1,
+	y = 1,
+	width = 10,
+	height = 5
+});
+
+-- Create Main Layer
+myLayer = rwtk_app_layer.create({
+	border = true,
+	visible = true,
+	title = 'Component Example'
+})
+
+-- Prepare application
+myLayer:addComponent('myLabel', myLabel);
+myApplication:addLayer('myLayer', myLayer)
+myApplication:focusLayer('myLayer');
+		
+-- Start application
+myApplication:start()

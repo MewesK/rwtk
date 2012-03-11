@@ -31,33 +31,28 @@ end)
 
 -- General functions
 
-function textBox:draw()
+function textBox:draw(innerX, innerY, innerWidth, innerHeight)
 	-- Draw frame
 	if self.border then
-		rwtk_draw.drawRectangle(self.x, self.y, self.width, self.height)
+		rwtk_draw.drawRectangle(innerX + self.x, innerY + self.y, self.width, self.height)
 	end
 	
 	-- Calculate inner dimensions
-	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions()
+	local _innerX, _innerY, _innerWidth, _innerHeight = self:innerDimensions(innerX, innerY, innerWidth, innerHeight)
 	
 	-- Draw text
 	if self.text then
-		term.setCursorPos(innerX, innerY)
-		if self.focused then
-			term.write(rwtk_string.ellipsis('>'..self.text, innerWidth))
-		else
-			term.write(rwtk_string.ellipsis(self.text, innerWidth))
-		end
+		term.setCursorPos(_innerX, _innerY)
 	end
 	
 	-- Draw base.base
 	self._base._base.draw(self)
 end
 
-function textBox:innerDimensions()
-	local innerX, innerY, innerWidth, innerHeight = self._base.innerDimensions(self)
-	
-	return innerX, innerY, innerWidth, innerHeight
+function textBox:innerDimensions(innerX, innerY, innerWidth, innerHeight)
+	local _innerX, _innerY, _innerWidth, _innerHeight = self._base.innerDimensions(self, innerX, innerY, innerWidth, innerHeight)
+	-- scrollbars
+	return _innerX, _innerY, _innerWidth, _innerHeight
 end
 
 -- Factory function

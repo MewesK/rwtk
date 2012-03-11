@@ -65,22 +65,25 @@ end)
 
 -- General functions
 
-function component:draw()
+function component:draw(innerX, innerY, innerWidth, innerHeight)
 	-- Calculate inner dimensions
-	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions()
+	local _innerX, _innerY, _innerWidth, _innerHeight = self:innerDimensions(innerX, innerY, innerWidth, innerHeight)
 	
 	-- Call event handler
 	if self.onDraw then	
-		term.setCursorPos(innerX, innerY)
-		self.onDraw(self, innerX, innerY, innerWidth, innerHeight)
+		term.setCursorPos(_innerX, _innerY)
+		self.onDraw(self, _innerX, _innerY, _innerWidth, _innerHeight)
 	end
 end
 
-function component:innerDimensions()
-	local innerX = self.x + self.padding
-	local innerY = self.y + self.padding
-	local innerWidth = self.width - 2 * self.padding
-	local innerHeight = self.height - 2 * self.padding
+function component:innerDimensions(innerX, innerY, innerWidth, innerHeight)
+	if not innerX or not innerY or not innerWidth or not innerHeight then
+		error((innerX or -1)..':'..(innerY or -1)..':'..(innerWidth or -1)..':'..(innerHeight or -1))
+	end
+	innerX = innerX + self.x + self.padding
+	innerY = innerY + self.y + self.padding
+	innerWidth = self.width - 2 * self.padding
+	innerHeight = self.height - 2 * self.padding
 	
 	return innerX, innerY, innerWidth, innerHeight
 end

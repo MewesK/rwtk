@@ -29,19 +29,19 @@ end)
 
 -- General functions
 
-function label:draw()
+function label:draw(innerX, innerY, innerWidth, innerHeight)
 	-- Draw frame
 	if self.border then
-		rwtk_draw.drawRectangle(self.x, self.y, self.width, self.height)
+		rwtk_draw.drawRectangle(innerX + self.x, innerY + self.y, self.width, self.height)
 	end
 	
 	-- Calculate inner dimensions
-	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions()
+	local _innerX, _innerY, _innerWidth, _innerHeight = self:innerDimensions(innerX, innerY, innerWidth, innerHeight)
 	
 	-- Draw text
 	if self.text then
-		term.setCursorPos(innerX, innerY)
-		term.write(rwtk_string.ellipsis(self.text, innerWidth))
+		term.setCursorPos(_innerX, _innerY)
+		term.write(rwtk_string.ellipsis(self.text, _innerWidth))
 	end
 	
 	-- Draw base

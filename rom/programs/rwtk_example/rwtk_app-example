@@ -105,27 +105,18 @@ mySaveAsDialog = rwtk_app_layer.create({
 			}
 		}
 	},
-	components = {
-		rwtk_app_component_label.create({
-			x = 1,
-			y = 1,
-			width = 10,
-			height = 4,
-			text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer a dolor quis orci consequat dapibus. Fusce interdum cursus vestibulum. Donec odio lectus, vulputate et elementum quis, dignissim id nisi. Sed.'
-		})
-	},
 
 	onDraw = function(self, innerX, innerY, innerWidth, innerHeight)
-		-- for i = 1, myConfig.subCounter do
-			-- term.write('X')
-			-- if i % innerWidth == 0 then
-				-- term.setCursorPos(innerX, innerY + math.floor(i / innerWidth))
-			-- end
-		-- end
+		for i = 1, myConfig.subCounter do
+			term.write('X')
+			if i % innerWidth == 0 then
+				term.setCursorPos(innerX, innerY + math.floor(i / innerWidth))
+			end
+		end
 	end,
 	
 	onKey = function(self, keyCode)
-		-- myConfig.subCounter = myConfig.subCounter + 1
+		myConfig.subCounter = myConfig.subCounter + 1
 	end
 })
 
