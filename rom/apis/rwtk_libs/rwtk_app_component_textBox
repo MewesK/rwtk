@@ -10,7 +10,7 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_draw')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_layer')
 
--- Button component class
+-- TextBox component class
 textBox = rwtk_core.class(rwtk_app_component_label.label, function(_self, properties)
 	_self.border = true
 	_self.padding = 1
@@ -32,7 +32,7 @@ end)
 -- General functions
 
 function textBox:draw()
--- Draw frame
+	-- Draw frame
 	if self.border then
 		rwtk_draw.drawRectangle(self.x, self.y, self.width, self.height)
 	end
@@ -58,4 +58,10 @@ function textBox:innerDimensions()
 	local innerX, innerY, innerWidth, innerHeight = self._base.innerDimensions(self)
 	
 	return innerX, innerY, innerWidth, innerHeight
+end
+
+-- Factory function
+
+function create(properties)
+	return textBox(properties);
 end

@@ -1,0 +1,81 @@
+-----------------------------------------------------------------------------
+-- Redworks Toolkit Example Application
+-- Author: MewK
+--
+-- This program is released under the MIT License (MIT).
+-----------------------------------------------------------------------------
+
+local myApplication
+local myLayer
+
+local pictureIndex = 0
+
+-- Create Application
+myApplication = rwtk_app.create({
+	-- onKey
+	onKey = function(self, keyCode)
+		if keyCode == 18 then	-- E
+			self:stop()
+		end
+	end
+})
+
+-- Create Main Layer
+myLayer = rwtk_app_layer.create({
+	border = false,
+	visible = true,
+	components = {
+		rwtk_app_component_pictureBox.create({
+			border = false,
+			x = 1,
+			y = 1,
+			width = 50,
+			height = 18,
+		})
+	},
+	
+	onKey = function(self, keyCode)
+		pictureIndex = pictureIndex + 1
+		if pictureIndex > 6 then
+			pictureIndex = 1
+		end
+		
+		if pictureIndex == 1 then
+			self:loadBitmap('nyan2.bmp', false)
+		elseif pictureIndex == 2 then
+			self:loadBitmap('nyan2.bmp', true)
+		elseif pictureIndex == 3 then
+			for y = 1, _h do 
+				for x = 1, _w do
+					self:setPixel(x, y, self:getValueByColor(math.ceil((y * x) / 3.53), false))
+				end
+			end
+		elseif pictureIndex == 4 then
+			for y = 1, _h do 
+				for x = 1, _w do
+					self:setPixel(x, y, self:getValueByColor(math.ceil((y * x) / 3.53), true))
+				end
+			end
+		elseif pictureIndex == 5 then
+			for y = 1, _h do 
+				for x = 1, _w do
+					self:setPixel(x, y, self:getValueByColor(math.ceil(x * 5.1), false))
+				end
+			end
+		elseif pictureIndex == 6 then
+			for y = 1, _h do 
+				for x = 1, _w do
+					self:setPixel(x, y, self:getValueByColor(math.ceil(x * 5.1), true))
+				end
+			end
+		end
+	end
+})
+
+-- Prepare application
+myApplication:addLayer('myLayer', myLayer)
+myApplication:focusLayer('myLayer');
+myLayer:onKey(nil)
+		
+-- Start application
+myApplication:start()

@@ -32,7 +32,7 @@ end)
 -- General functions
 
 function button:draw()
--- Draw frame
+	-- Draw frame
 	if self.border then
 		rwtk_draw.drawRectangle(self.x, self.y, self.width, self.height)
 	end
@@ -52,4 +52,10 @@ function button:draw()
 	
 	-- Draw base.base
 	self._base._base.draw(self)
+end
+
+-- Factory function
+
+function create(properties)
+	return button(properties);
 end

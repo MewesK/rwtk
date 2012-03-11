@@ -47,3 +47,9 @@ function label:draw()
 	-- Draw base
 	self._base.draw(self)
 end
+
+-- Factory function
+
+function create(properties)
+	return label(properties);
+end

@@ -85,7 +85,7 @@ myLayer = rwtk_app_layer.create({
 })
 
 -- Create Save As Dialog
-mySaveAsDialog = 
+mySaveAsDialog = rwtk_app_layer.create({
 	width = 32, 
 	height = 14,
 	title = 'Surprise',

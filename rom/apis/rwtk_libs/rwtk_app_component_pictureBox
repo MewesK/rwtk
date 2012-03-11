@@ -10,52 +10,26 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_draw')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_layer')
 
--- Abstract component class
-component = rwtk_core.class(function(_self, properties)
+-- PictureBox component class
+pictureBox = rwtk_core.class(rwtk_app_component_label.label, function(_self, properties)
 	_self.border = true
 	_self.padding = 1
 	_self.visible = false
 	_self.width, _self.height = term.getSize()
 	
-	-- Copy properties
-	if properties then
-		for key, value in pairs(properties) do
-			_self[key] = value
+	-- Create pixelMatrix
+	_self.pictureMatrix = {}
+	for y = 1, _self.height do
+		_self.pictureMatrix[y] = {}
+		for x = 1, _self.width do
+			_self.pictureMatrix[y][x] = ' '
 		end
 	end
 	
-	-- Property logic
-	if not _self.x or not _self.y then
-		_self.x, _self.y = 1, 1
-	end
-	
-	if not _self.border then
-		_self.padding = 0
-	end
-		
-	-- Component key event handler
-	if _self.onKey then
-		_self.__onKey = _self.onKey
-	end
+	-- Call base constructor
+	rwtk_app_component_label.label.init(_self, properties)
 	
 	_self.onKey = function(self, keyCode)
-		-- Up
-		if keyCode == 200 then
-
-		-- Down
-		elseif keyCode == 208 then
-
-		-- Left
-		elseif keyCode == 203 then
-
-		-- Right
-		elseif keyCode == 205 then
-
-		-- Enter
-		elseif keyCode == 28 then
-
-		end
-
 		-- Call event handler
 		if self.__onKey then
 			self.__onKey(self, keyCode)
@@ -65,30 +39,71 @@ end)
 
 -- General functions
 
-function component:draw()
-
-	-- Calculate inner dimensions
-	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions()
+function pictureBox:draw()
+	-- Draw pixels
+	for y = 1, # self.pictureMatrix do
+		for x = 1, # self.pictureMatrix[y] do
+			term.setCursorPos(x, y)
+			term.write(self:getPixel(x, y))
+		end
+	end
 	
-	-- Call event handler
-	if self.onDraw then	
-		term.setCursorPos(innerX, innerY)
-		self.onDraw(self, innerX, innerY, innerWidth, innerHeight)
+	-- Draw frame
+	if self.border then
+		rwtk_draw.drawRectangle(self.x, self.y, self.width, self.height)
+	end
+	
+	-- Draw base.base
+	self._base._base.draw(self)
+end
+
+-- Pixel functions
+
+function pictureBox:resize(width, height)
+	if width then
+		self.width = width
+	end
+	if height then
+		self.height = height
+	end
+	
+	self.pictureMatrix = {}
+	for y = 1, self.height do
+		self.pictureMatrix[y] = {}
+		for x = 1, self.width do
+			_self.pictureMatrix[y][x] = ' '
+		end
 	end
 end
 
-function component:innerDimensions()
-	local innerX = self.x
-	local innerY = self.y
-	local innerWidth = self.width
-	local innerHeight = self.height
-	
-	return innerX, innerY, innerWidth, innerHeight
+function pictureBox:isPixel(x, y)
+	return not (y < 1 or y > # self.pictureMatrix or x < 1 or x > # self.pictureMatrix[y])
 end
 
--- --------------------------------
+function pictureBox:setPixel(x, y, value)
+	if not self:isPixel(x, y) or not value then
+		return false
+	end
+	self.pictureMatrix[y][x] = value
+end
 
-colorMatrix = {
+function pictureBox:getPixel(x, y)
+	if not self:isPixel(x, y) then
+		return false
+	end
+	return self.pictureMatrix[y][x]
+end
+
+-- Factory function
+
+function create(properties)
+	return pictureBox(properties);
+end
+
+-- Advanced functions
+
+-- Color matrix
+local colorMatrix = {
 	{ value = 0, chars = { ' ' } },
 	{ value = 2, chars = { '.' } },
 	{ value = 3, chars = { '\'', ',', '\'' } },
@@ -111,9 +126,7 @@ colorMatrix = {
 	{ value = 24, chars = { '@' } }
 }
 
-pictureMatrix = {}
-
-function getValueByColor(color, randomChar)
+function pictureBox:getValueByColor(color, randomChar)
 	-- Convert to value
 	local value = math.floor(color / 255 * # colorMatrix)
 	
@@ -134,45 +147,7 @@ function getValueByColor(color, randomChar)
 	return nearestChars[1]
 end
 
-function isPixel(x, y)
-	return not (y < 1 or y > # pictureMatrix or x < 1 or x > # pictureMatrix[y])
-end
-
-function setPixel(x, y, value)
-	if not isPixel(x, y) or not value then
-		return false
-	end
-	pictureMatrix[y][x] = value
-end
-
-function getPixel(x, y)
-	if not isPixel(x, y) then
-		return false
-	end
-	return pictureMatrix[y][x]
-end
-
-function create(width, height)
-	pictureMatrix = {}
-	for y = 1, height do
-		pictureMatrix[y] = {}
-		for x = 1, width do
-			pictureMatrix[y][x] = ' '
-		end
-	end
-end
-
-function draw() 
-	term.clear()
-	for y = 1, # pictureMatrix do
-		for x = 1, # pictureMatrix[y] do
-			term.setCursorPos(x, y)
-			term.write(getPixel(x, y))
-		end
-	end
-end
-
-function createFromBitmap(filename)
+function pictureBox:loadBitmap(filename)
 	-- bytes (litte endian) to int
 	local function bytesToNumber(bytes, signed)
 		if not bytes or # bytes == 0 then
@@ -238,7 +213,7 @@ function createFromBitmap(filename)
 		elseif currentOffset == 0x16 then
 			currentOffset, currentValue = readBytes(file, currentOffset, 4, true)
 			height = currentValue
-			create(width, height)
+			self:resize(width, height)
 			
 		-- bpp
 		elseif currentOffset == 0x1c then
@@ -257,10 +232,10 @@ function createFromBitmap(filename)
 				local row = {}
 				for x = 1, width * 3, 3 do
 					-- Convert RGB => grayscale => text
-					row[(x + 2) / 3] = getValueByColor(math.floor((currentValue[x] + currentValue[x + 1] + currentValue[x + 2]) / 3), false)
+					row[(x + 2) / 3] = self:getValueByColor(math.floor((currentValue[x] + currentValue[x + 1] + currentValue[x + 2]) / 3), false)
 				end
 				-- Reverse row order
-				pictureMatrix[height + 1 - y] = row
+				self.pictureMatrix[height + 1 - y] = row
 			end
 			
 		-- ignore
@@ -270,40 +245,3 @@ function createFromBitmap(filename)
 	end
 	file:close()
 end
-
--- Create from bitmap
-createFromBitmap('nyan2.bmp')
-draw() 
-read()
-
--- Create
-local _w, _h = term.getSize()
-create(_w, _h)
-
--- Fill
-for y = 1, _h do for x = 1, _w do
-	setPixel(x, y, getValueByColor(math.ceil((y * x) / 3.53), false))
-end end
-draw() 
-read()
-
--- Fill
-for y = 1, _h do for x = 1, _w do
-	setPixel(x, y, getValueByColor(math.ceil((y * x) / 3.53), true))
-end end
-draw() 
-read()
-
--- Fill
-for y = 1, _h do for x = 1, _w do
-	setPixel(x, y, getValueByColor(math.ceil(x * 5.1), false))
-end end
-draw() 
-read()
-
--- Fill
-for y = 1, _h do for x = 1, _w do
-	setPixel(x, y, getValueByColor(math.ceil(x * 5.1), true))
-end end
-draw()
-read()
