@@ -271,7 +271,7 @@ function layer:getComponent(name)
 	return nil, nil
 end
 
-function app:getActiveComponent()
+function layer:getActiveComponent()
 	if self.componentFocusIndex > 0 then
 		return self.components[self.componentFocusIndex]
 	end
