@@ -9,16 +9,19 @@
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_draw')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 
--- Abstract layer class
+-- Base layer class
 layer = rwtk_core.class(function(_self, properties)
 	_self.border = true
 	_self.padding = 1
+	_self.visible = false
+	_self.width, _self.height = term.getSize()
+	
 	_self.menu = nil
 	_self.menuSelectionIndex = 0
 	_self.menuSubSelectionIndex = 0
-	_self.visible = false
 
-	_self.width, _self.height = term.getSize()
+	_self.components = {}
+	_self.componentFocusIndex = 0
 	
 	-- Copy properties
 	if properties then
@@ -27,8 +30,13 @@ layer = rwtk_core.class(function(_self, properties)
 		end
 	end
 	
+	-- Property logic
 	if not _self.x or not _self.y then
 		_self.x, _self.y = rwtk_draw.centeredCoordinates(_self.width, _self.height)
+	end
+	
+	if not _self.border then
+		_self.padding = 0
 	end
 	
 	-- Default menu alignment: top
@@ -45,7 +53,7 @@ layer = rwtk_core.class(function(_self, properties)
 		if self.menu then
 			-- Toggle menu (Control)
 			if keyCode == 29 then
-				self:toggleMenu()
+				self:toggleMenuFocus()
 			
 			-- Navigate menu
 			elseif self:isMenuActive() then
@@ -97,6 +105,10 @@ layer = rwtk_core.class(function(_self, properties)
 					end
 					self:focusMenu(false)
 				end
+			
+			-- Route event to active component
+			elseif self:getActiveComponent() and self:getActiveComponent().onKey then
+				self:getActiveComponent().onKey(self, keyCode)
 			end
 		end
 		
@@ -107,29 +119,34 @@ layer = rwtk_core.class(function(_self, properties)
 	end
 end)
 
-function layer:draw()
-	local padding = 0
+-- General functions
 
+function layer:draw()
 	-- Draw frame
 	if self.border then
 		rwtk_draw.drawRectangle(self.x, self.y, self.width, self.height)
-		padding = 1
 	end
 	
-	local mx = self.x + padding
-	local my = self.y + padding
+	local mx = self.x + self.padding
+	local my = self.y + self.padding
 	
 	-- Draw title
 	if self.title then
-		rwtk_draw.drawHorizontalLine(self.x, self.y + 1 + padding, self.width, self.border)
-		term.setCursorPos(self.x + 1 + padding, self.y + padding)
-		term.write(rwtk_string.ellipsis(self.title, self.width - 2 - 2 * padding))
+		rwtk_draw.drawHorizontalLine(self.x, self.y + 1 + self.padding, self.width, self.border)
+		term.setCursorPos(self.x + 1 + self.padding, self.y + self.padding)
+		term.write(rwtk_string.ellipsis(self.title, self.width - 2 - 2 * self.padding))
 		my = my + 2
 	end
 	
 	-- Calculate inner dimensions
 	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions()
 	
+	-- Draw components
+	for index, component in ipairs(self.components) do
+		if component.visible then
+			component:draw()
+		end
+	end
 	
 	-- Call event handler
 	if self.onDraw then	
@@ -140,11 +157,11 @@ function layer:draw()
 	-- Draw menu
 	if self.menu then
 		if self.menu.align == 'bottom' then
-			my = self.height - 2 - padding
+			my = self.height - 2 - self.padding
 		end
 	
 		-- Clear menu area
-		rwtk_draw.fillRectangle(mx, my, self.width - 2 * padding, 2, ' ')
+		rwtk_draw.fillRectangle(mx, my, self.width - 2 * self.padding, 2, ' ')
 		
 		-- Draw menu area
 		if self.menu.align == 'bottom' then
@@ -243,12 +260,68 @@ function layer:innerDimensions()
 	return innerX, innerY, innerWidth, innerHeight
 end
 
+-- Component functions
+
+function layer:getComponent(name)
+	for index, component in ipairs(self.components) do
+		if component.name == name then
+			return component, index 
+		end
+	end
+	return nil, nil
+end
+
+function app:getActiveComponent()
+	if self.componentFocusIndex > 0 then
+		return self.components[self.componentFocusIndex]
+	end
+	return false
+end
+
+function layer:removeComponent(name)
+	-- Get component
+	local component, index = self:getComponent(name)
+	
+	-- Remove component
+	if index then
+		table.remove(self.components, index)
+		-- Change focus
+		if index == self.componentFocusIndex then
+			self.componentFocusIndex = self.componentFocusIndex - 1
+		end
+	end
+end
+	
+function layer:addComponent(name, component)
+	-- Remove component if exists
+	self:removeComponent(name)
+	
+	-- Add component
+	component.name = name
+	component.parent = self
+	table.insert(self.components, component)
+end
+
+function layer:focusComponent(name)
+	-- Get component
+	local layer, index = self:getComponent(name)
+	
+	-- Focus component
+	if index then
+		self.componentFocusIndex = index
+	else
+		self.componentFocusIndex = 0
+	end
+end
+
+-- Menu functions
+
 function layer:isMenuActive()
 	return self.menuSelectionIndex > 0
 end
 
-function layer:focusMenu(menuFocused)
-	if menuFocused then
+function layer:focusMenu(focused)
+	if focused then
 		self.menuSelectionIndex = 1
 		self.menuSubSelectionIndex = 1
 	else
@@ -257,7 +330,7 @@ function layer:focusMenu(menuFocused)
 	end
 end
 
-function layer:toggleMenu()
+function layer:toggleMenuFocus()
 	self:focusMenu(not self:isMenuActive())
 end
 
@@ -277,6 +350,8 @@ function layer:selectedSubMenuItem()
 	end
 	return false
 end
+
+-- Factory function
 
 function create(properties)
 	return layer(properties);

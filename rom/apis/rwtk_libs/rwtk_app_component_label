@@ -1,0 +1,49 @@
+-----------------------------------------------------------------------------
+-- Redworks Toolkit
+-- Author: MewK
+--
+-- This program is released under the MIT License (MIT).
+-----------------------------------------------------------------------------
+
+-- Using:
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_draw')
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_component')
+
+-- Label component class
+label = rwtk_core.class(rwtk_app_component.component, function(_self, properties)
+	_self.border = false
+	_self.padding = 0
+	_self.text = ''
+	
+	-- Call base constructor
+	rwtk_app_component.component.init(_self, properties)
+	
+	_self.onKey = function(self, keyCode)
+		-- Call event handler
+		if self.__onKey then
+			self.__onKey(self, keyCode)
+		end
+	end
+end)
+
+-- General functions
+
+function label:draw()
+	-- Draw frame
+	if self.border then
+		rwtk_draw.drawRectangle(self.x, self.y, self.width, self.height)
+	end
+	
+	-- Calculate inner dimensions
+	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions()
+	
+	-- Draw text
+	if self.text then
+		term.setCursorPos(innerX, innerY)
+		term.write(rwtk_string.ellipsis(self.text, innerWidth))
+	end
+	
+	-- Draw base
+	self._base.draw(self)
+end

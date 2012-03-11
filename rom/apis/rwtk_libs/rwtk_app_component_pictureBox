@@ -1,0 +1,309 @@
+-----------------------------------------------------------------------------
+-- Redworks Toolkit
+-- Author: MewK
+--
+-- This program is released under the MIT License (MIT).
+-----------------------------------------------------------------------------
+
+-- Using:
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_draw')
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_layer')
+
+-- Abstract component class
+component = rwtk_core.class(function(_self, properties)
+	_self.border = true
+	_self.padding = 1
+	_self.visible = false
+	_self.width, _self.height = term.getSize()
+	
+	-- Copy properties
+	if properties then
+		for key, value in pairs(properties) do
+			_self[key] = value
+		end
+	end
+	
+	-- Property logic
+	if not _self.x or not _self.y then
+		_self.x, _self.y = 1, 1
+	end
+	
+	if not _self.border then
+		_self.padding = 0
+	end
+		
+	-- Component key event handler
+	if _self.onKey then
+		_self.__onKey = _self.onKey
+	end
+	
+	_self.onKey = function(self, keyCode)
+		-- Up
+		if keyCode == 200 then
+
+		-- Down
+		elseif keyCode == 208 then
+
+		-- Left
+		elseif keyCode == 203 then
+
+		-- Right
+		elseif keyCode == 205 then
+
+		-- Enter
+		elseif keyCode == 28 then
+
+		end
+
+		-- Call event handler
+		if self.__onKey then
+			self.__onKey(self, keyCode)
+		end
+	end
+end)
+
+-- General functions
+
+function component:draw()
+
+	-- Calculate inner dimensions
+	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions()
+	
+	-- Call event handler
+	if self.onDraw then	
+		term.setCursorPos(innerX, innerY)
+		self.onDraw(self, innerX, innerY, innerWidth, innerHeight)
+	end
+end
+
+function component:innerDimensions()
+	local innerX = self.x
+	local innerY = self.y
+	local innerWidth = self.width
+	local innerHeight = self.height
+	
+	return innerX, innerY, innerWidth, innerHeight
+end
+
+-- --------------------------------
+
+colorMatrix = {
+	{ value = 0, chars = { ' ' } },
+	{ value = 2, chars = { '.' } },
+	{ value = 3, chars = { '\'', ',', '\'' } },
+	{ value = 4, chars = { ':' } },
+	{ value = 5, chars = { '-', ';', '^', '_', '×', '¡' } },
+	{ value = 6, chars = { '!', '"', '*', 'i', '|', '~' } },
+	{ value = 7, chars = { '/', '<', '>', '\\', 'l', 'ï', 'ì', 'í', '¬' } },
+	{ value = 9, chars = { '(', ')', '+', '?', 'Y', 'r', 't', 'v', 'x', '{', '}', '¿' } },
+	{ value = 10, chars = { '%', '=', 'J', 'î', '«', '»' } },
+	{ value = 11, chars = { 'I', 'L', 'T', '[', ']', 'c', 'f', 'j' } },
+	{ value = 12, chars = { '1', '7', 'k', 'n', 'o', 'u', '¦', 'ù', 'ƒ' } },
+	{ value = 13, chars = { 'C', 'F', 'V', 'X', 'm', 's', 'z', 'Ü', '½' } },
+	{ value = 14, chars = { '3', 'P', 'a', 'h', 'p', 'q', 'w', 'ü', 'ç', 'æ', 'ö', 'ò', 'ó', 'ú', '¼' } },
+	{ value = 15, chars = { '$', '&', '4', '6', '9', 'K', 'S', 'U', 'Z', 'e', 'y', 'Ç', 'å', 'Å', 'É', 'û', 'ø', 'º' } },
+	{ value = 16, chars = { '2',' O', 'Q', 'b', 'd', 'ä', 'à', 'Ö', '£', 'á' } },
+	{ value = 17, chars = { '5', '8', 'E', 'G', 'H', 'M', 'N', 'W', 'g', 'é', 'ë', 'è', 'ô', 'ÿ', 'ñ' } },
+	{ value = 18, chars = { 'A', 'D', 'R', 'Ä', 'Ñ', 'ª' } },
+	{ value = 19, chars = { '0', 'â', 'Ø', '®' } },
+	{ value = 20, chars = { '#', 'B', 'ê', 'Æ' } },
+	{ value = 24, chars = { '@' } }
+}
+
+pictureMatrix = {}
+
+function getValueByColor(color, randomChar)
+	-- Convert to value
+	local value = math.floor(color / 255 * # colorMatrix)
+	
+	-- Find nearest
+	local nearestValue = colorMatrix[1].value
+	local nearestChars = colorMatrix[1].chars
+	for index, color in ipairs(colorMatrix) do
+		if math.abs(color.value - value) < math.abs(nearestValue - value) then
+			nearestValue = color.value
+			nearestChars = color.chars
+		end
+	end
+	
+	-- Return char
+	if randomChar then
+		return nearestChars[math.random(# nearestChars)]
+	end
+	return nearestChars[1]
+end
+
+function isPixel(x, y)
+	return not (y < 1 or y > # pictureMatrix or x < 1 or x > # pictureMatrix[y])
+end
+
+function setPixel(x, y, value)
+	if not isPixel(x, y) or not value then
+		return false
+	end
+	pictureMatrix[y][x] = value
+end
+
+function getPixel(x, y)
+	if not isPixel(x, y) then
+		return false
+	end
+	return pictureMatrix[y][x]
+end
+
+function create(width, height)
+	pictureMatrix = {}
+	for y = 1, height do
+		pictureMatrix[y] = {}
+		for x = 1, width do
+			pictureMatrix[y][x] = ' '
+		end
+	end
+end
+
+function draw() 
+	term.clear()
+	for y = 1, # pictureMatrix do
+		for x = 1, # pictureMatrix[y] do
+			term.setCursorPos(x, y)
+			term.write(getPixel(x, y))
+		end
+	end
+end
+
+function createFromBitmap(filename)
+	-- bytes (litte endian) to int
+	local function bytesToNumber(bytes, signed)
+		if not bytes or # bytes == 0 then
+			return nil
+		end
+	
+		local number = 0
+		for i = 1, # bytes do
+			number = number + (bytes[i] * (0x100 ^ (i - 1)))
+		end
+		
+		if signed then
+			local maxInt = 0xff ^ # bytes
+			if number >= maxInt / 2  then
+			  number = 0 - maxInt - number
+			end
+		end
+		
+		return number
+	end
+	
+	local function readBytesRaw(file, currentOffset, length, signed)
+		local bytes = {}
+		for i = 1, length do
+			bytes[i] = file:read()
+		end
+		return currentOffset + length, bytes
+	end
+	
+	local function readBytes(file, currentOffset, length, signed, foo)
+		local currentOffset, currentValue = readBytesRaw(file, currentOffset, length)
+		return currentOffset, bytesToNumber(currentValue, signed)
+	end
+
+	-- Open bitmap
+	
+	file = io.open(filename, 'rb')
+	if not file then
+		error("BMP: NO SUCH FILE")
+	end
+	
+	local width = 0
+	local height = 0
+	local bpp = 0
+	local rowSize = 0
+	local data_start = 0
+	
+	-- Parse bitmap
+	
+	local currentOffset, currentValue = readBytes(file, 0x00, 1)
+	while currentValue do
+		-- data_start
+		if currentOffset == 0x0a then
+			currentOffset, currentValue = readBytes(file, currentOffset, 2, false)
+			data_start = currentValue
+			
+		-- width
+		elseif currentOffset == 0x12 then
+			currentOffset, currentValue = readBytes(file, currentOffset, 4, true)
+			width = currentValue
+			
+		-- height
+		elseif currentOffset == 0x16 then
+			currentOffset, currentValue = readBytes(file, currentOffset, 4, true)
+			height = currentValue
+			create(width, height)
+			
+		-- bpp
+		elseif currentOffset == 0x1c then
+			currentOffset, currentValue = readBytes(file, currentOffset, 2)
+			bpp = currentValue
+			rowSize = math.ceil(bpp * width / 32) * 4
+			if bpp ~= 24 then
+				error("BMP: " .. bpp .. " BIT (MUST BE 24 BIT)")
+			end
+			
+		-- data
+		elseif currentOffset == data_start then
+			for y = 1, height do
+				currentOffset, currentValue = readBytesRaw(file, currentOffset, rowSize)
+				-- Trim row
+				local row = {}
+				for x = 1, width * 3, 3 do
+					-- Convert RGB => grayscale => text
+					row[(x + 2) / 3] = getValueByColor(math.floor((currentValue[x] + currentValue[x + 1] + currentValue[x + 2]) / 3), false)
+				end
+				-- Reverse row order
+				pictureMatrix[height + 1 - y] = row
+			end
+			
+		-- ignore
+		else
+			currentOffset, currentValue = readBytes(file, currentOffset, 1)
+		end
+	end
+	file:close()
+end
+
+-- Create from bitmap
+createFromBitmap('nyan2.bmp')
+draw() 
+read()
+
+-- Create
+local _w, _h = term.getSize()
+create(_w, _h)
+
+-- Fill
+for y = 1, _h do for x = 1, _w do
+	setPixel(x, y, getValueByColor(math.ceil((y * x) / 3.53), false))
+end end
+draw() 
+read()
+
+-- Fill
+for y = 1, _h do for x = 1, _w do
+	setPixel(x, y, getValueByColor(math.ceil((y * x) / 3.53), true))
+end end
+draw() 
+read()
+
+-- Fill
+for y = 1, _h do for x = 1, _w do
+	setPixel(x, y, getValueByColor(math.ceil(x * 5.1), false))
+end end
+draw() 
+read()
+
+-- Fill
+for y = 1, _h do for x = 1, _w do
+	setPixel(x, y, getValueByColor(math.ceil(x * 5.1), true))
+end end
+draw()
+read()
