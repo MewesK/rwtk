@@ -89,7 +89,7 @@ application = rwtk_core.class(function(_self, properties)
 	-- Default properties
 	_self.focusIndex = 0
 	_self.height = _height
-	_self.layers = {}
+	_self.frames = {}
 	_self.running = false
 	_self.width = _width
 	_self.x = 1
@@ -116,29 +116,29 @@ application = rwtk_core.class(function(_self, properties)
 	end
 end)
 
-function application:getLayer(name)
-	for index, layer in ipairs(self.layers) do
-		if layer.name == name then
-			return layer, index 
+function application:getFrame(name)
+	for index, frame in ipairs(self.frames) do
+		if frame.name == name then
+			return frame, index 
 		end
 	end
 	return nil, nil
 end
 
-function application:getActiveLayer()
+function application:getActiveFrame()
 	if self.focusIndex > 0 then
-		return self.layers[self.focusIndex]
+		return self.frames[self.focusIndex]
 	end
 	return false
 end
 
-function application:removeLayer(name)
-	-- Get layer
-	local layer, index = self:getLayer(name)
+function application:removeFrame(name)
+	-- Get frame
+	local frame, index = self:getFrame(name)
 	
-	-- Remove layer
+	-- Remove frame
 	if index then
-		table.remove(self.layers, index)
+		table.remove(self.frames, index)
 		-- Change focus
 		if index == self.focusIndex then
 			self.focusIndex = self.focusIndex - 1
@@ -146,40 +146,40 @@ function application:removeLayer(name)
 	end
 end
 	
-function application:addLayer(name, layer)
-	-- Remove layer if exists
-	self:removeLayer(name)
+function application:addFrame(name, frame)
+	-- Remove frame if exists
+	self:removeFrame(name)
 	
-	-- Add layer
-	layer.name = name
-	layer.parent = self
-	table.insert(self.layers, layer)
+	-- Add frame
+	frame.name = name
+	frame.parent = self
+	table.insert(self.frames, frame)
 end
 
-function application:focusLayer(name)
-	-- Get layer
-	local layer, index = self:getLayer(name)
-	if layer then
-		-- DeFocus old layer
+function application:focusFrame(name)
+	-- Get frame
+	local frame, index = self:getFrame(name)
+	if frame then
+		-- DeFocus old frame
 		if self.focusIndex > 0 then
-			self.layers[self.focusIndex].focused = false
+			self.frames[self.focusIndex].focused = false
 		end
 		
-		-- Focus new layer
-		layer.focused = true;
+		-- Focus new frame
+		frame.focused = true;
 		self.focusIndex = index
 	end
 end
 
 function application:callEvent(eventHandler, ...)
-	local function _callEvent(layer, name, ...)
-		if layer and layer[name] then
-			layer[name](layer, ...)
+	local function _callEvent(frame, name, ...)
+		if frame and frame[name] then
+			frame[name](frame, ...)
 		end
 	end
 
 	local stopEvent = false
-	local activeLayer = self:getActiveLayer()
+	local activeFrame = self:getActiveFrame()
 	
 	if self[eventHandler] then 
 		stopEvent = self[eventHandler](self, ...) 
@@ -189,37 +189,37 @@ function application:callEvent(eventHandler, ...)
 		if eventHandler == 'onDraw' then
 			term.clear()
 			term.setCursorPos(1, 1)
-			for index, layer in ipairs(self.layers) do
+			for index, frame in ipairs(self.frames) do
 				local stopEvent = false
-				if layer.visible then
-					local innerLayerX, innerLayerY, innerLayerWidth, innerLayerHeight = layer:innerDimensions(self.x, self.y, self.width, self.height)
-					rwtk_draw.fillRectangle(innerLayerX, innerLayerY, innerLayerWidth, innerLayerHeight, ' ')
-					term.setCursorPos(innerLayerX, innerLayerY)
-					local stopEvent = _callEvent(layer, eventHandler, innerLayerX, innerLayerY, innerLayerWidth, innerLayerHeight)
+				if frame.visible then
+					local innerFrameX, innerFrameY, innerFrameWidth, innerFrameHeight = frame:innerDimensions(self.x, self.y, self.width, self.height)
+					rwtk_draw.fillRectangle(innerFrameX, innerFrameY, innerFrameWidth, innerFrameHeight, ' ')
+					term.setCursorPos(innerFrameX, innerFrameY)
+					local stopEvent = _callEvent(frame, eventHandler, innerFrameX, innerFrameY, innerFrameWidth, innerFrameHeight)
 					if not stopEvent then
-						if layer.components then
-							for index, component in ipairs(layer.components) do
+						if frame.components then
+							for index, component in ipairs(frame.components) do
 								if component.visible then
-									local innerComponentX, innerComponentY, innerComponentWidth, innerComponentHeight = layer:innerDimensions(innerLayerX, innerLayerY, innerLayerWidth, innerLayerHeight)
+									local innerComponentX, innerComponentY, innerComponentWidth, innerComponentHeight = frame:innerDimensions(innerFrameX, innerFrameY, innerFrameWidth, innerFrameHeight)
 									term.setCursorPos(innerComponentX, innerComponentY)
 									local stopSubEvent = _callEvent(component, eventHandler, innerComponentX, innerComponentY, innerComponentWidth, innerComponentHeight)
 									if not stopSubEvent then
-										term.setCursorPos(innerLayerX, innerLayerY)
-										_callEvent(component, eventHandler..'Internal', innerLayerX, innerLayerY, innerLayerWidth, innerLayerHeight)
+										term.setCursorPos(innerFrameX, innerFrameY)
+										_callEvent(component, eventHandler..'Internal', innerFrameX, innerFrameY, innerFrameWidth, innerFrameHeight)
 									end
 								end
 							end
 						end
 						term.setCursorPos(self.x, self.y)
-						_callEvent(layer, eventHandler..'Internal', self.x, self.y, self.width, self.height)
+						_callEvent(frame, eventHandler..'Internal', self.x, self.y, self.width, self.height)
 					end
 				end
 			end
 		else
-			local stopEvent = _callEvent(activeLayer, eventHandler, ...)
+			local stopEvent = _callEvent(activeFrame, eventHandler, ...)
 			if not stopEvent then
-				_callEvent(activeLayer, eventHandler..'Internal', ...)
-				local activeComponent = activeLayer:getActiveComponent()
+				_callEvent(activeFrame, eventHandler..'Internal', ...)
+				local activeComponent = activeFrame:getActiveComponent()
 				if activeComponent then
 					local stopSubEvent = _callEvent(activeComponent, eventHandler, ...)
 					if not stopSubEvent then

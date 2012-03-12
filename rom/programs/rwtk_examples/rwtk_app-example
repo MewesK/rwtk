@@ -7,7 +7,7 @@
 
 local myApplication
 local myConfig
-local myLayer
+local myFrame
 local mySaveAsDialog
 
 -- Create Application
@@ -35,8 +35,8 @@ myApplication = rwtk_app.create({
 	end
 })
 
--- Create Main Layer
-myLayer = rwtk_app_layer.create({
+-- Create Main Frame
+myFrame = rwtk_app_frame.create({
 	border = false,
 	visible = true,
 	menu = {
@@ -55,8 +55,8 @@ myLayer = rwtk_app_layer.create({
 						text = 'Surprise',
 						keyCode = 31, -- S
 						onAction = function(self)
-							self.parent:getLayer('mySaveAsDialog').visible = true
-							self.parent:focusLayer('mySaveAsDialog')
+							self.parent:getFrame('mySaveAsDialog').visible = true
+							self.parent:focusFrame('mySaveAsDialog')
 						end
 					}
 				}
@@ -85,7 +85,7 @@ myLayer = rwtk_app_layer.create({
 })
 
 -- Create Save As Dialog
-mySaveAsDialog = rwtk_app_layer.create({
+mySaveAsDialog = rwtk_app_frame.create({
 	visible = false,
 	width = 32, 
 	height = 14,
@@ -99,7 +99,7 @@ mySaveAsDialog = rwtk_app_layer.create({
 						text = 'Close',
 						onAction = function(self)
 							self.visible = false
-							self.parent:focusLayer('myLayer')
+							self.parent:focusFrame('myFrame')
 						end
 					}
 				}
@@ -122,9 +122,9 @@ mySaveAsDialog = rwtk_app_layer.create({
 })
 
 -- Prepare application
-myApplication:addLayer('myLayer', myLayer)
-myApplication:addLayer('mySaveAsDialog', mySaveAsDialog)
-myApplication:focusLayer('myLayer');
+myApplication:addFrame('myFrame', myFrame)
+myApplication:addFrame('mySaveAsDialog', mySaveAsDialog)
+myApplication:focusFrame('myFrame');
 		
 -- Start application
 myApplication:start()

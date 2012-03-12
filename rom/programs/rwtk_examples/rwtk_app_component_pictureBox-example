@@ -7,7 +7,7 @@
 
 local myApplication
 local myPictureBox
-local myLayer
+local myFrame
 
 local pictureIndex = 0
 local w, h = term.getSize()
@@ -60,8 +60,8 @@ myApplication = rwtk_app.create({
 	end
 })
 
--- Create Main Layer (no borders, no title, no menu = fullscreen)
-myLayer = rwtk_app_layer.create({
+-- Create Main Frame (no borders, no title, no menu = fullscreen)
+myFrame = rwtk_app_frame.create({
 	border = false,
 	visible = true
 })
@@ -73,9 +73,9 @@ myPictureBox = rwtk_app_pictureBox.create({
 });
 
 -- Prepare application
-myLayer:addComponent('myPictureBox', myPictureBox);
-myApplication:addLayer('myLayer', myLayer)
-myApplication:focusLayer('myLayer');
+myFrame:addComponent('myPictureBox', myPictureBox);
+myApplication:addFrame('myFrame', myFrame)
+myApplication:focusFrame('myFrame');
 myApplication:onKey()
 		
 -- Start application

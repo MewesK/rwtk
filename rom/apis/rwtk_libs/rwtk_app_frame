@@ -10,8 +10,8 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_app')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_draw')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 
--- Base layer class
-layer = rwtk_core.class(rwtk_app.component, function(_self, properties)
+-- Base frame class
+frame = rwtk_core.class(rwtk_app.component, function(_self, properties)
 	-- Default properties
 	_self.title = nil
 	
@@ -33,7 +33,7 @@ end)
 
 -- Base functions
 
-function layer:innerDimensions(innerX, innerY, innerWidth, innerHeight)
+function frame:innerDimensions(innerX, innerY, innerWidth, innerHeight)
 	-- Call base
 	innerX, innerY, innerWidth, innerHeight = self._base.innerDimensions(self, innerX, innerY, innerWidth, innerHeight)
 	
@@ -52,7 +52,7 @@ function layer:innerDimensions(innerX, innerY, innerWidth, innerHeight)
 	return innerX, innerY, innerWidth, innerHeight
 end
 
-function layer:onDrawInternal(innerX, innerY, innerWidth, innerHeight)
+function frame:onDrawInternal(innerX, innerY, innerWidth, innerHeight)
 	-- Call base
 	self._base.onDrawInternal(self, innerX, innerY, innerWidth, innerHeight, true)
 	
@@ -149,7 +149,7 @@ function layer:onDrawInternal(innerX, innerY, innerWidth, innerHeight)
 	end
 end
 
-function layer:onKeyInternal(keyCode)
+function frame:onKeyInternal(keyCode)
 	if self.menu then
 		-- Toggle menu (Control)
 		if keyCode == 29 then
@@ -211,7 +211,7 @@ end
 
 -- Component functions
 
-function layer:getComponent(name)
+function frame:getComponent(name)
 	if self.components then
 		for index, component in ipairs(self.components) do
 			if component.name == name then
@@ -222,14 +222,14 @@ function layer:getComponent(name)
 	return nil, nil
 end
 
-function layer:getActiveComponent()
+function frame:getActiveComponent()
 	if self.componentFocusIndex > 0 then
 		return self.components[self.componentFocusIndex]
 	end
 	return false
 end
 
-function layer:removeComponent(name)
+function frame:removeComponent(name)
 	if not self.components then
 		return
 	end
@@ -247,7 +247,7 @@ function layer:removeComponent(name)
 	end
 end
 	
-function layer:addComponent(name, component)
+function frame:addComponent(name, component)
 	if not self.components then
 		self.components = {}
 	else
@@ -261,9 +261,9 @@ function layer:addComponent(name, component)
 	table.insert(self.components, component)
 end
 
-function layer:focusComponent(name)
+function frame:focusComponent(name)
 	-- Get component
-	local layer, index = self:getComponent(name)
+	local frame, index = self:getComponent(name)
 	
 	-- Focus component
 	if index then
@@ -275,11 +275,11 @@ end
 
 -- Menu functions
 
-function layer:isMenuActive()
+function frame:isMenuActive()
 	return self.menuSelectionIndex > 0
 end
 
-function layer:focusMenu(focused)
+function frame:focusMenu(focused)
 	if focused then
 		self.menuSelectionIndex = 1
 		self.menuSubSelectionIndex = 1
@@ -289,18 +289,18 @@ function layer:focusMenu(focused)
 	end
 end
 
-function layer:toggleMenuFocus()
+function frame:toggleMenuFocus()
 	self:focusMenu(not self:isMenuActive())
 end
 
-function layer:selectedMenuItem()
+function frame:selectedMenuItem()
 	if self.menu then
 		return self.menu.items[self.menuSelectionIndex]
 	end
 	return false
 end
 
-function layer:selectedSubMenuItem()
+function frame:selectedSubMenuItem()
 	if self.menu then
 		local item = self:selectedMenuItem();
 		if item and item.items then
@@ -313,5 +313,5 @@ end
 -- Factory function
 
 function create(properties)
-	return layer(properties);
+	return frame(properties);
 end

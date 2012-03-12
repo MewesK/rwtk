@@ -8,11 +8,11 @@
 -- Using:
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_draw')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
-os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_layer')
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_frame')
 
 -- Abstract child class
-local child = rwtk_core.class(rwtk_app_layer.layer, function(_self, properties)
-	rwtk_app_layer.layer.init(_self, properties)
+local child = rwtk_core.class(rwtk_app_frame.frame, function(_self, properties)
+	rwtk_app_frame.frame.init(_self, properties)
 end)
 
 function child:draw()

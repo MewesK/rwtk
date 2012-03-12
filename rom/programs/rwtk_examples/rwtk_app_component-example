@@ -7,7 +7,7 @@
 
 local myApplication
 local myLabel
-local myLayer
+local myFrame
 
 local pictureIndex = 0
 
@@ -21,8 +21,8 @@ myApplication = rwtk_app.create({
 	end
 })
 
--- Create Main Layer
-myLayer = rwtk_app_layer.create({
+-- Create Main Frame
+myFrame = rwtk_app_frame.create({
 	border = true,
 	visible = true,
 	title = 'Component Example'
@@ -39,9 +39,9 @@ myLabel = rwtk_app_label.create({
 });
 
 -- Prepare application
-myLayer:addComponent('myLabel', myLabel);
-myApplication:addLayer('myLayer', myLayer)
-myApplication:focusLayer('myLayer');
+myFrame:addComponent('myLabel', myLabel);
+myApplication:addFrame('myFrame', myFrame)
+myApplication:focusFrame('myFrame');
 		
 -- Start application
 myApplication:start()
