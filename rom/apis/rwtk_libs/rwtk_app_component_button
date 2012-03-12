@@ -51,7 +51,7 @@ function button:draw(innerX, innerY, innerWidth, innerHeight)
 	end
 	
 	-- Draw base.base
-	self._base._base.draw(self)
+	self._base._base.draw(self, innerX, innerY, innerWidth, innerHeight)
 end
 
 -- Factory function

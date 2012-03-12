@@ -11,6 +11,7 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 
 -- Base layer class
 layer = rwtk_core.class(function(_self, properties)
+	_self.title = nil
 	_self.border = true
 	_self.padding = 1
 	_self.visible = false
@@ -157,7 +158,7 @@ function layer:draw()
 	-- Draw menu
 	if self.menu then
 		if self.menu.align == 'bottom' then
-			my = self.height - 2 - self.padding
+			my = self.height - 1 - self.padding
 		end
 	
 		-- Clear menu area
@@ -174,7 +175,7 @@ function layer:draw()
 		local _x = mx
 		local _y = my
 		if self.menu.align == 'bottom' then
-			_y = my + 1
+			_y = _y + 1
 		end
 		local __y = _y
 		for index, item in ipairs(self.menu.items) do

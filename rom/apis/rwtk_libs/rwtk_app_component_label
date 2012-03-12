@@ -14,7 +14,7 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_component')
 label = rwtk_core.class(rwtk_app_component.component, function(_self, properties)
 	_self.border = false
 	_self.padding = 0
-	_self.text = ''
+	_self.text = nil
 	
 	-- Call base constructor
 	rwtk_app_component.component.init(_self, properties)
@@ -32,7 +32,7 @@ end)
 function label:draw(innerX, innerY, innerWidth, innerHeight)
 	-- Draw frame
 	if self.border then
-		rwtk_draw.drawRectangle(innerX + self.x, innerY + self.y, self.width, self.height)
+		rwtk_draw.drawRectangle(innerX + self.x - 1, innerY + self.y - 1, self.width, self.height)
 	end
 	
 	-- Calculate inner dimensions
@@ -45,7 +45,7 @@ function label:draw(innerX, innerY, innerWidth, innerHeight)
 	end
 	
 	-- Draw base
-	self._base.draw(self)
+	self._base.draw(self, innerX, innerY, innerWidth, innerHeight)
 end
 
 -- Factory function

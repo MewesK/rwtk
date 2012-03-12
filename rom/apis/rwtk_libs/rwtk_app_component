@@ -77,13 +77,9 @@ function component:draw(innerX, innerY, innerWidth, innerHeight)
 end
 
 function component:innerDimensions(innerX, innerY, innerWidth, innerHeight)
-	if not innerX or not innerY or not innerWidth or not innerHeight then
-		error((innerX or -1)..':'..(innerY or -1)..':'..(innerWidth or -1)..':'..(innerHeight or -1))
-	end
-	innerX = innerX + self.x + self.padding
-	innerY = innerY + self.y + self.padding
+	innerX = innerX + self.x + self.padding - 1
+	innerY = innerY + self.y + self.padding - 1
 	innerWidth = self.width - 2 * self.padding
 	innerHeight = self.height - 2 * self.padding
-	
 	return innerX, innerY, innerWidth, innerHeight
 end

@@ -24,6 +24,7 @@ myApplication = rwtk_app.create({
 -- Create PictureBox
 myPictureBox = rwtk_app_component_pictureBox.create({
 	border = false,
+	visible = true,
 	x = 1,
 	y = 1,
 	width = 50,

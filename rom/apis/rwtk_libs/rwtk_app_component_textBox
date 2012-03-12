@@ -46,7 +46,7 @@ function textBox:draw(innerX, innerY, innerWidth, innerHeight)
 	end
 	
 	-- Draw base.base
-	self._base._base.draw(self)
+	self._base._base.draw(self, innerX, innerY, innerWidth, innerHeight)
 end
 
 function textBox:innerDimensions(innerX, innerY, innerWidth, innerHeight)

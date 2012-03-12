@@ -26,8 +26,9 @@ myLabel = rwtk_app_component_label.create({
 	border = true,
 	x = 1,
 	y = 1,
-	width = 10,
-	height = 5
+	width = 20,
+	height = 5,
+	text = 'fbieuf euf wieuf eufehfiuhf fhiuefheiufeh efhapia ohguihgda pa pogiapgof gagpguh pgh paigpg gh pogh ap.'
 });
 
 -- Create Main Layer

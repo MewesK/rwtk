@@ -27,13 +27,6 @@ pictureBox = rwtk_core.class(rwtk_app_component_label.label, function(_self, pro
 			_self.pictureMatrix[y][x] = ' '
 		end
 	end
-	
-	_self.onKey = function(self, keyCode)
-		-- Call event handler
-		if self.__onKey then
-			self.__onKey(self, keyCode)
-		end
-	end
 end)
 
 -- General functions
@@ -56,7 +49,7 @@ function pictureBox:draw(innerX, innerY, innerWidth, innerHeight)
 	end
 	
 	-- Draw base.base
-	self._base._base.draw(self)
+	self._base._base.draw(self, innerX, innerY, innerWidth, innerHeight)
 end
 
 -- Pixel functions
