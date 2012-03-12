@@ -10,6 +10,7 @@ local myPictureBox
 local myLayer
 
 local pictureIndex = 0
+local w, h = term.getSize()
 
 -- Create Application
 myApplication = rwtk_app.create({
@@ -17,69 +18,65 @@ myApplication = rwtk_app.create({
 	onKey = function(self, keyCode)
 		if keyCode == 18 then	-- E
 			self:stop()
+		else
+			pictureIndex = pictureIndex + 1
+			if pictureIndex > 7 then
+				pictureIndex = 1
+			end
+			
+			if pictureIndex == 1 then
+				myPictureBox:loadBitmap('/rom/programs/rwtk_examples/nyan1.bmp', false)
+			elseif pictureIndex == 2 then
+				myPictureBox:loadBitmap('/rom/programs/rwtk_examples/nyan1.bmp', true)
+			elseif pictureIndex == 3 then
+				myPictureBox:loadBitmap('/rom/programs/rwtk_examples/nyan2.bmp', false)
+			elseif pictureIndex == 4 then
+				myPictureBox:resize(w, h)
+				for y = 1, myPictureBox.height do 
+					for x = 1, myPictureBox.width do
+						myPictureBox:setPixel(x, y, myPictureBox:getValueByColor(math.ceil((y * x) / (myPictureBox.height * myPictureBox.width) * 255), false))
+					end
+				end
+			elseif pictureIndex == 5 then
+				for y = 1, myPictureBox.height do 
+					for x = 1, myPictureBox.width do
+						myPictureBox:setPixel(x, y, myPictureBox:getValueByColor(math.ceil((y * x) / (myPictureBox.height * myPictureBox.width) * 255), true))
+					end
+				end
+			elseif pictureIndex == 6 then
+				for y = 1, myPictureBox.height do 
+					for x = 1, myPictureBox.width do
+						myPictureBox:setPixel(x, y, myPictureBox:getValueByColor(math.ceil(x / myPictureBox.width * 255), false))
+					end
+				end
+			elseif pictureIndex == 7 then
+				for y = 1, myPictureBox.height do 
+					for x = 1, myPictureBox.width do
+						myPictureBox:setPixel(x, y, myPictureBox:getValueByColor(math.floor(x / myPictureBox.width * 255), true))
+					end
+				end
+			end		
 		end
 	end
 })
 
--- Create PictureBox
-myPictureBox = rwtk_app_component_pictureBox.create({
-	border = false,
-	visible = true,
-	x = 1,
-	y = 1,
-	width = 50,
-	height = 18
-});
-
--- Create Main Layer
+-- Create Main Layer (no borders, no title, no menu = fullscreen)
 myLayer = rwtk_app_layer.create({
 	border = false,
-	visible = true,
-	
-	onKey = function(self, keyCode)
-		pictureIndex = pictureIndex + 1
-		if pictureIndex > 6 then
-			pictureIndex = 1
-		end
-		
-		if pictureIndex == 1 then
-			myPictureBox:loadBitmap('nyan2.bmp', false)
-		elseif pictureIndex == 2 then
-			myPictureBox:loadBitmap('nyan2.bmp', true)
-		elseif pictureIndex == 3 then
-			myPictureBox:resize(50, 18)
-			for y = 1, myPictureBox.height do 
-				for x = 1, myPictureBox.width do
-					myPictureBox:setPixel(x, y, myPictureBox:getValueByColor(math.ceil((y * x) / 3.53), false))
-				end
-			end
-		elseif pictureIndex == 4 then
-			for y = 1, myPictureBox.height do 
-				for x = 1, myPictureBox.width do
-					myPictureBox:setPixel(x, y, myPictureBox:getValueByColor(math.ceil((y * x) / 3.53), true))
-				end
-			end
-		elseif pictureIndex == 5 then
-			for y = 1, myPictureBox.height do 
-				for x = 1, myPictureBox.width do
-					myPictureBox:setPixel(x, y, myPictureBox:getValueByColor(math.ceil(x * 5.1), false))
-				end
-			end
-		elseif pictureIndex == 6 then
-			for y = 1, myPictureBox.height do 
-				for x = 1, myPictureBox.width do
-					myPictureBox:setPixel(x, y, myPictureBox:getValueByColor(math.ceil(x * 5.1), true))
-				end
-			end
-		end
-	end
+	visible = true
 })
+
+-- Create PictureBox (no borders)
+myPictureBox = rwtk_app_component_pictureBox.create({
+	border = false,
+	visible = true
+});
 
 -- Prepare application
 myLayer:addComponent('myPictureBox', myPictureBox);
-myLayer:onKey()
 myApplication:addLayer('myLayer', myLayer)
 myApplication:focusLayer('myLayer');
+myApplication:onKey()
 		
 -- Start application
 myApplication:start()

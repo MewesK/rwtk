@@ -12,8 +12,6 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_component')
 
 -- Label component class
 label = rwtk_core.class(rwtk_app_component.component, function(_self, properties)
-	_self.border = false
-	_self.padding = 0
 	_self.text = nil
 	
 	-- Call base constructor

@@ -12,10 +12,6 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_layer')
 
 -- PictureBox component class
 pictureBox = rwtk_core.class(rwtk_app_component_label.label, function(_self, properties)
-	_self.border = true
-	_self.padding = 1
-	_self.visible = false
-	
 	-- Call base constructor
 	rwtk_app_component_label.label.init(_self, properties)
 	
@@ -98,6 +94,7 @@ end
 -- Advanced functions
 
 -- Color matrix
+local colorMatrixMax = 24
 local colorMatrix = {
 	{ value = 0, chars = { ' ' } },
 	{ value = 2, chars = { '.' } },
@@ -113,7 +110,7 @@ local colorMatrix = {
 	{ value = 13, chars = { 'C', 'F', 'V', 'X', 'm', 's', 'z', 'Ü', '½' } },
 	{ value = 14, chars = { '3', 'P', 'a', 'h', 'p', 'q', 'w', 'ü', 'ç', 'æ', 'ö', 'ò', 'ó', 'ú', '¼' } },
 	{ value = 15, chars = { '$', '&', '4', '6', '9', 'K', 'S', 'U', 'Z', 'e', 'y', 'Ç', 'å', 'Å', 'É', 'û', 'ø', 'º' } },
-	{ value = 16, chars = { '2',' O', 'Q', 'b', 'd', 'ä', 'à', 'Ö', '£', 'á' } },
+	{ value = 16, chars = { '2', 'O', 'Q', 'b', 'd', 'ä', 'à', 'Ö', '£', 'á' } },
 	{ value = 17, chars = { '5', '8', 'E', 'G', 'H', 'M', 'N', 'W', 'g', 'é', 'ë', 'è', 'ô', 'ÿ', 'ñ' } },
 	{ value = 18, chars = { 'A', 'D', 'R', 'Ä', 'Ñ', 'ª' } },
 	{ value = 19, chars = { '0', 'â', 'Ø', '®' } },
@@ -123,7 +120,7 @@ local colorMatrix = {
 
 function pictureBox:getValueByColor(color, randomChar)
 	-- Convert to value
-	local value = math.floor(color / 255 * # colorMatrix)
+	local value = rwtk_core.round(color / 255 * colorMatrixMax, 0)
 	
 	-- Find nearest
 	local nearestValue = colorMatrix[1].value
@@ -181,7 +178,7 @@ function pictureBox:loadBitmap(filename, randomChar)
 	
 	file = io.open(filename, 'rb')
 	if not file then
-		error("BMP: NO SUCH FILE")
+		error('Error: No such file "'..filename..'"')
 	end
 	
 	local width = 0

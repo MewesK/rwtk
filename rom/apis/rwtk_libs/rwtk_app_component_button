@@ -12,8 +12,6 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_component_label')
 
 -- Button component class
 button = rwtk_core.class(rwtk_app_component_label.label, function(_self, properties)
-	_self.border = true
-	_self.padding = 1
 	_self.focusable = true
 	
 	-- Call base constructor

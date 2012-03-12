@@ -11,26 +11,30 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_layer')
 -- Abstract component class
 component = rwtk_core.class(function(_self, properties)
 	_self.border = true
+	--_self.focusable = false
+	_self.focused = false
+	_self.height = --
 	_self.padding = 1
 	_self.visible = true
-	_self.width, _self.height = 10, 3
-	_self.focusable = false
-	_self.focused = false
+	_self.width = --
+	_self.x = 1
+	_self.y = 1
 	
-	-- Copy properties
+	-- Properties
 	if properties then
+		-- Copy properties
 		for key, value in pairs(properties) do
 			_self[key] = value
 		end
-	end
 	
-	-- Property logic
-	if not _self.x or not _self.y then
-		_self.x, _self.y = 1, 1
-	end
-	
-	if not _self.border then
-		_self.padding = 0
+		-- Property logic
+		if not _self.x or not _self.y then
+			_self.x, _self.y = 1, 1
+		end
+		
+		if not _self.border then
+			_self.padding = 0
+		end
 	end
 		
 	-- Component key event handler
