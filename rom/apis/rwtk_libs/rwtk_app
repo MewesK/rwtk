@@ -13,16 +13,18 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_core')
 -----------------------------------------------------------------------------
 
 component = rwtk_core.class(function(_self, properties)
+	local _width, _height = term.getSize()
+	
 	-- Default properties
 	_self.border = true
 	--_self.focusable = false
 	_self.focused = false
-	_self.height = false
+	_self.height = _height
 	_self.padding = 1
 	_self.visible = true
-	_self.width = false
-	_self.x = false
-	_self.y = false
+	_self.width = _width
+	_self.x = 1
+	_self.y = 1
 	
 	-- User properties
 	if properties then
@@ -36,49 +38,37 @@ component = rwtk_core.class(function(_self, properties)
 			_self.padding = 0
 		end
 		
-		-- Backup user onKey handler
-		if _self.onKey then
-			_self.__onKey = _self.onKey
+		if not _self.x then
+			_self.x = 1
 		end
-	end
-	
-	-- Internal onKey handler
-	_self.onKey = function(self, keyCode)
-		-- Up
-		if keyCode == 200 then
-
-		-- Down
-		elseif keyCode == 208 then
-
-		-- Left
-		elseif keyCode == 203 then
-
-		-- Right
-		elseif keyCode == 205 then
-
-		-- Enter
-		elseif keyCode == 28 then
-
+		if not _self.y then
+			_self.y = 1
 		end
-
-		-- Call event handler
-		if self.__onKey then
-			self.__onKey(self, keyCode)
+		if not _self.witdh then
+			_self.witdh = _witdh
+		end
+		if not _self.height then
+			_self.height = _height
 		end
 	end
 end)
 
--- General functions
+-- Base functions
 
-function component:draw(innerX, innerY, innerWidth, innerHeight)
-	-- Calculate inner dimensions
-	local _innerX, _innerY, _innerWidth, _innerHeight = self:innerDimensions(innerX, innerY, innerWidth, innerHeight)
-	
-	-- Call event handler
-	if self.onDraw then	
-		term.setCursorPos(_innerX, _innerY)
-		self.onDraw(self, _innerX, _innerY, _innerWidth, _innerHeight)
+function component:onDrawInternal(innerX, innerY, innerWidth, innerHeight, keepBackground)	
+	if not keepBackground then
+	-- Clear
+		rwtk_draw.fillRectangle(innerX, innerY, innerWidth, innerHeight, ' ')
 	end
+	
+	-- Draw frame
+	if self.border then
+		rwtk_draw.drawRectangle(innerX + self.x - 1, innerY + self.y - 1, self.width, self.height)
+	end
+end
+
+function component:onKeyInternal(keyCode)
+	-- do something
 end
 
 function component:innerDimensions(innerX, innerY, innerWidth, innerHeight)
@@ -94,15 +84,34 @@ end
 -----------------------------------------------------------------------------
 
 application = rwtk_core.class(function(_self, properties)
+	local _width, _height = term.getSize()
+
 	-- Default properties
 	_self.focusIndex = 0
+	_self.height = _height
 	_self.layers = {}
 	_self.running = false
+	_self.width = _width
+	_self.x = 1
+	_self.y = 1
 	
 	-- User properties
 	if properties then
 		for key, value in pairs(properties) do
 			_self[key] = value
+		end
+		
+		if not _self.x then
+			_self.x = 1
+		end
+		if not _self.y then
+			_self.y = 1
+		end
+		if not _self.width then
+			_self.width = _width
+		end
+		if not _self.height then
+			_self.height = _height
 		end
 	end
 end)
@@ -150,93 +159,110 @@ end
 function application:focusLayer(name)
 	-- Get layer
 	local layer, index = self:getLayer(name)
-	
-	-- Focus layer
-	if index then
-		self.focusIndex = index
-	else
-		self.focusIndex = 0
-	end
-end
-
-function application:draw()
-	term.clear()
-	term.setCursorPos(1, 1)
-
-	local activeLayer = self:getActiveLayer()
-	for index, layer in ipairs(self.layers) do
-		if layer.visible then
-			layer:draw()
+	if layer then
+		-- DeFocus old layer
+		if self.focusIndex > 0 then
+			self.layers[self.focusIndex].focused = false
 		end
+		
+		-- Focus new layer
+		layer.focused = true;
+		self.focusIndex = index
 	end
 end
 
 function application:callEvent(eventHandler, ...)
-	if self[eventHandler] then 
-		self[eventHandler](self, ...) 
+	local function _callEvent(layer, name, ...)
+		if layer and layer[name] then
+			layer[name](layer, ...)
+		end
 	end
-	
+
+	local stopEvent = false
 	local activeLayer = self:getActiveLayer()
-	if activeLayer and activeLayer[eventHandler] then
-		activeLayer[eventHandler](activeLayer, ...)
+	
+	if self[eventHandler] then 
+		stopEvent = self[eventHandler](self, ...) 
+	end
+
+	if not stopEvent then
+		if eventHandler == 'onDraw' then
+			term.clear()
+			term.setCursorPos(1, 1)
+			for index, layer in ipairs(self.layers) do
+				local stopEvent = false
+				if layer.visible then
+					local innerLayerX, innerLayerY, innerLayerWidth, innerLayerHeight = layer:innerDimensions(self.x, self.y, self.width, self.height)
+					rwtk_draw.fillRectangle(innerLayerX, innerLayerY, innerLayerWidth, innerLayerHeight, ' ')
+					term.setCursorPos(innerLayerX, innerLayerY)
+					local stopEvent = _callEvent(layer, eventHandler, innerLayerX, innerLayerY, innerLayerWidth, innerLayerHeight)
+					if not stopEvent then
+						if layer.components then
+							for index, component in ipairs(layer.components) do
+								if component.visible then
+									local innerComponentX, innerComponentY, innerComponentWidth, innerComponentHeight = layer:innerDimensions(innerLayerX, innerLayerY, innerLayerWidth, innerLayerHeight)
+									term.setCursorPos(innerComponentX, innerComponentY)
+									local stopSubEvent = _callEvent(component, eventHandler, innerComponentX, innerComponentY, innerComponentWidth, innerComponentHeight)
+									if not stopSubEvent then
+										term.setCursorPos(innerLayerX, innerLayerY)
+										_callEvent(component, eventHandler..'Internal', innerLayerX, innerLayerY, innerLayerWidth, innerLayerHeight)
+									end
+								end
+							end
+						end
+						term.setCursorPos(self.x, self.y)
+						_callEvent(layer, eventHandler..'Internal', self.x, self.y, self.width, self.height)
+					end
+				end
+			end
+		else
+			local stopEvent = _callEvent(activeLayer, eventHandler, ...)
+			if not stopEvent then
+				_callEvent(activeLayer, eventHandler..'Internal', ...)
+				local activeComponent = activeLayer:getActiveComponent()
+				if activeComponent then
+					local stopSubEvent = _callEvent(activeComponent, eventHandler, ...)
+					if not stopSubEvent then
+						_callEvent(activeComponent, eventHandler..'Internal', ...)
+					end
+				end
+			end
+		end
 	end
 end
 
 function application:start()
+	local handlerNames = {
+		alarm = 'onAlarm',
+		char = 'onChar',
+		disk = 'onDisk',
+		disk_eject = 'onDiskEject',
+		key = 'onKey',
+		rednet_message = 'onRednet',
+		redstone = 'onRedstone',
+		timer = 'onTimer'
+	}
+	
 	self.running = true
 	
 	-- onStart
 	self:callEvent('onStart')
 	
 	-- Draw screen
-	self:draw()
+	self:callEvent('onDraw')
 	
 	while self.running do
-		-- onLoop
-		self:callEvent('onLoop')
-	
 		-- Pull event
 		local event, param1, param2 = os.pullEvent()
 		
-		-- onEvent
+		-- Handle event
 		self:callEvent('onEvent', event, param1, param2)
-			
-		-- onAlarm
-		if event == 'alarm' then
-			self:callEvent('onAlarm', param1)
-		
-		-- onChar
-		elseif event == 'char' then
-			self:callEvent('onChar', param1)
-			
-		-- onDisk
-		elseif event == 'disk' then
-			self:callEvent('onDisk', param1)
-			
-		-- onDiskEject
-		elseif event == 'disk_eject' then
-			self:callEvent('onDiskEject', param1)
-		
-		-- onKey
-		elseif event == 'key' then
-			self:callEvent('onKey', param1)
-			
-		-- onRednet
-		elseif event == 'rednet_message' then
-			self:callEvent('onRednet', param1, param2)
-			
-		-- onRedstone
-		elseif event == 'redstone' then
-			self:callEvent('onRedstone')
-			
-		-- onTimer
-		elseif event == 'timer' then
-			self:callEvent('onTimer', param1)
-			
+		if handlerNames[event] then
+			self:callEvent(handlerNames[event], param1, param2)
 		end
 		
 		-- Draw screen
-		self:draw()
+		self:callEvent('onDraw')
 	end
 	
 	-- onStop

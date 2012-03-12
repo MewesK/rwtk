@@ -21,21 +21,22 @@ myApplication = rwtk_app.create({
 	end
 })
 
--- Create PictureBox
-myLabel = rwtk_app_component_label.create({
-	border = true,
-	x = 1,
-	y = 1,
-	height = 5,
-	text = 'fbieuf euf wieuf eufehfiuhf fhiuefheiufeh efhapia ohguihgda pa pogiapgof gagpguh pgh paigpg gh pogh ap.'
-});
-
 -- Create Main Layer
 myLayer = rwtk_app_layer.create({
 	border = true,
 	visible = true,
 	title = 'Component Example'
 })
+
+-- Create Label
+myLabel = rwtk_app_label.create({
+	border = true,
+	x = 1,
+	y = 1,
+	width = 10,
+	height = 5,
+	text = 'fbieuf euf wieuf eufehfiuhf fhiuefheiufeh efhapia ohguihgda pa pogiapgof gagpguh pgh paigpg gh pogh ap.'
+});
 
 -- Prepare application
 myLayer:addComponent('myLabel', myLabel);

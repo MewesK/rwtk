@@ -41,9 +41,7 @@ function fillRectangle(x, y, w, h, char)
 	end	
 end
 
-function drawRectangle(x, y, w, h)
-	fillRectangle(x, y, w, h, ' ')
-	
+function drawRectangle(x, y, w, h)	
 	drawVerticalLine(x, y, h, false)
 	drawVerticalLine(x + w - 1, y, h, false)
 	

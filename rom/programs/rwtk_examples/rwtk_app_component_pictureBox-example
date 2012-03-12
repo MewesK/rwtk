@@ -67,7 +67,7 @@ myLayer = rwtk_app_layer.create({
 })
 
 -- Create PictureBox (no borders)
-myPictureBox = rwtk_app_component_pictureBox.create({
+myPictureBox = rwtk_app_pictureBox.create({
 	border = false,
 	visible = true
 });

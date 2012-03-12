@@ -12,40 +12,36 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 
 -- PictureBox component class
 pictureBox = rwtk_core.class(rwtk_app.component, function(_self, properties)
+	_self.pictureMatrix = nil
+	
 	-- Call base constructor
 	rwtk_app.component.init(_self, properties)
 	
 	-- Create pixelMatrix
-	_self.pictureMatrix = {}
-	for y = 1, _self.height do
-		_self.pictureMatrix[y] = {}
-		for x = 1, _self.width do
-			_self.pictureMatrix[y][x] = ' '
+	if not _self.pictureMatrix then
+		_self.pictureMatrix = {}
+		for y = 1, _self.height do
+			_self.pictureMatrix[y] = {}
+			for x = 1, _self.width do
+				_self.pictureMatrix[y][x] = ' '
+			end
 		end
 	end
 end)
 
--- General functions
+-- Base functions
 
-function pictureBox:draw(innerX, innerY, innerWidth, innerHeight)
-	-- Calculate inner dimensions
-	local _innerX, _innerY, _innerWidth, _innerHeight = self:innerDimensions(innerX, innerY, innerWidth, innerHeight)
+function pictureBox:onDrawInternal(innerX, innerY, innerWidth, innerHeight)
+	-- Draw base
+	self._base.onDrawInternal(self, innerX, innerY, innerWidth, innerHeight)
 	
 	-- Draw pixels
 	for y = 1, # self.pictureMatrix do
 		for x = 1, # self.pictureMatrix[y] do
-			term.setCursorPos(_innerX + x - 1, _innerY + y - 1)
+			term.setCursorPos(innerX + x - 1 + self.padding, innerY + y - 1 + self.padding)
 			term.write(self:getPixel(x, y))
 		end
 	end
-	
-	-- Draw frame
-	if self.border then
-		rwtk_draw.drawRectangle(innerX + self.x, innerY + self.y, self.width, self.height)
-	end
-	
-	-- Draw base.base
-	self._base.draw(self, innerX, innerY, innerWidth, innerHeight)
 end
 
 -- Pixel functions

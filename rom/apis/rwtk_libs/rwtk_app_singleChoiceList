@@ -6,82 +6,34 @@
 -----------------------------------------------------------------------------
 
 -- Using:
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_app')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_draw')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
-os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_layer')
 
--- Abstract component class
-component = rwtk_core.class(function(_self, properties)
-	_self.border = true
-	_self.padding = 1
-	_self.visible = false
-	_self.width, _self.height = term.getSize()
+-- SingleChoiceList component class
+singleChoiceList = rwtk_core.class(rwtk_app.component, function(_self, properties)
+	-- Default properties
+	_self.focusable = true
+	_self.items = {}
+	_self.itemsSelectionIndex = 0
 	
-	-- Copy properties
-	if properties then
-		for key, value in pairs(properties) do
-			_self[key] = value
-		end
-	end
-	
-	-- Property logic
-	if not _self.x or not _self.y then
-		_self.x, _self.y = 1, 1
-	end
-	
-	if not _self.border then
-		_self.padding = 0
-	end
-		
-	-- Component key event handler
-	if _self.onKey then
-		_self.__onKey = _self.onKey
-	end
-	
-	_self.onKey = function(self, keyCode)
-		-- Up
-		if keyCode == 200 then
-
-		-- Down
-		elseif keyCode == 208 then
-
-		-- Left
-		elseif keyCode == 203 then
-
-		-- Right
-		elseif keyCode == 205 then
-
-		-- Enter
-		elseif keyCode == 28 then
-
-		end
-
-		-- Call event handler
-		if self.__onKey then
-			self.__onKey(self, keyCode)
-		end
-	end
+	-- Call base constructor
+	rwtk_app.component.init(_self, properties)
 end)
 
--- General functions
+-- Base functions
 
-function component:draw()
-
-	-- Calculate inner dimensions
-	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions()
-	
-	-- Call event handler
-	if self.onDraw then	
-		term.setCursorPos(innerX, innerY)
-		self.onDraw(self, innerX, innerY, innerWidth, innerHeight)
-	end
+function singleChoiceList:onDrawInternal()
+	-- Draw base
+	self._base.onDrawInternal(self, innerX, innerY, innerWidth, innerHeight)
 end
 
-function component:innerDimensions()
-	local innerX = self.x
-	local innerY = self.y
-	local innerWidth = self.width
-	local innerHeight = self.height
-	
-	return innerX, innerY, innerWidth, innerHeight
+function singleChoiceList:onKeyInternal(keyCode)
+	-- do something
+end
+
+-- Factory function
+
+function create(properties)
+	return singleChoiceList(properties);
 end

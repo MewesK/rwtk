@@ -14,121 +14,28 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 layer = rwtk_core.class(rwtk_app.component, function(_self, properties)
 	-- Default properties
 	_self.title = nil
-	_self.visible = false
-	_self.width, _self.height = term.getSize()
+	
+	_self.components = nil
+	_self.componentFocusIndex = 0
 	
 	_self.menu = nil
 	_self.menuSelectionIndex = 0
 	_self.menuSubSelectionIndex = 0
 
-	_self.components = {}
-	_self.componentFocusIndex = 0
-	
-	-- User properties
-	if properties then
-		-- Copy properties
-		for key, value in pairs(properties) do
-			_self[key] = value
-		end
-	
-		-- Property logic
-		if not _self.x or not _self.y then
-			_self.x, _self.y = rwtk_draw.centeredCoordinates(_self.width, _self.height)
-		end
+	-- Call base constructor
+	rwtk_app.component.init(_self, properties)
 		
-		if not _self.border then
-			_self.padding = 0
-		end
-		
-		-- Default menu alignment: top
-		if _self.menu and not _self.menu.align then
-			_self.menu.align = 'top'
-		end
-	
-		-- Backup user onKey handler
-		if _self.onKey then
-			_self.__onKey = _self.onKey
-		end
-	end
-	
-	-- Internal onKey handler
-	_self.onKey = function(self, keyCode)
-		if self.menu then
-			-- Toggle menu (Control)
-			if keyCode == 29 then
-				self:toggleMenuFocus()
-			
-			-- Navigate menu
-			elseif self:isMenuActive() then
-				local menuItem = self:selectedMenuItem()
-				
-				-- Up
-				if keyCode == 200 then
-					if menuItem.items then
-						self.menuSubSelectionIndex = self.menuSubSelectionIndex - 1
-						if self.menuSubSelectionIndex < 1 then
-							self.menuSubSelectionIndex = # menuItem.items
-						end
-					end
-		
-				-- Down
-				elseif keyCode == 208 then
-					if menuItem.items then
-						self.menuSubSelectionIndex = self.menuSubSelectionIndex + 1
-						if self.menuSubSelectionIndex > # menuItem.items then
-							self.menuSubSelectionIndex = 1
-						end
-					end
-		
-				-- Left
-				elseif keyCode == 203 then
-					self.menuSelectionIndex = self.menuSelectionIndex - 1
-					if self.menuSelectionIndex < 1 then
-						self.menuSelectionIndex = # self.menu.items
-					end
-					self.menuSubSelectionIndex = 1
-		
-				-- Right
-				elseif keyCode == 205 then
-					self.menuSelectionIndex = self.menuSelectionIndex + 1
-					if self.menuSelectionIndex > # self.menu.items then
-						self.menuSelectionIndex = 1
-					end
-					self.menuSubSelectionIndex = 1
-
-				-- Enter
-				elseif keyCode == 28 then
-					if menuItem.onAction then
-						menuItem.onAction(self)
-					elseif menuItem.items then
-						local subMenuItem = self:selectedSubMenuItem()
-						if subMenuItem and subMenuItem.onAction then
-							subMenuItem.onAction(self)
-						end
-					end
-					self:focusMenu(false)
-				end
-			
-			-- Route event to active component
-			elseif self:getActiveComponent() and self:getActiveComponent().onKey then
-				self:getActiveComponent().onKey(self, keyCode)
-			end
-		end
-		
-		-- Call event handler
-		if self.__onKey then
-			self.__onKey(self, keyCode)
-		end
+	-- Default menu alignment: top
+	if _self.menu and not _self.menu.align then
+		_self.menu.align = 'top'
 	end
 end)
 
--- General functions
+-- Base functions
 
-function layer:draw()
-	-- Draw frame
-	if self.border then
-		rwtk_draw.drawRectangle(self.x, self.y, self.width, self.height)
-	end
+function layer:onDrawInternal(innerX, innerY, innerWidth, innerHeight)
+	-- Call base
+	self._base.onDrawInternal(self, innerX, innerY, innerWidth, innerHeight, true)
 	
 	local mx = self.x + self.padding
 	local my = self.y + self.padding
@@ -136,26 +43,14 @@ function layer:draw()
 	-- Draw title
 	if self.title then
 		rwtk_draw.drawHorizontalLine(self.x, self.y + 1 + self.padding, self.width, self.border)
+		rwtk_draw.fillRectangle(self.x + self.padding, self.y + self.padding, self.width - 2 - 2 * self.padding, 1, ' ')
 		term.setCursorPos(self.x + 1 + self.padding, self.y + self.padding)
 		term.write(rwtk_string.ellipsis(self.title, self.width - 2 - 2 * self.padding))
 		my = my + 2
 	end
 	
 	-- Calculate inner dimensions
-	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions()
-	
-	-- Draw components
-	for index, component in ipairs(self.components) do
-		if component.visible then
-			component:draw(innerX, innerY, innerWidth, innerHeight)
-		end
-	end
-	
-	-- Call event handler
-	if self.onDraw then	
-		term.setCursorPos(innerX, innerY)
-		self.onDraw(self, innerX, innerY, innerWidth, innerHeight)
-	end
+	local _innerX, _innerY, _innerWidth, _innerHeight = self:innerDimensions(innerX, innerY, innerWidth, innerHeigh)
 	
 	-- Draw menu
 	if self.menu then
@@ -235,18 +130,69 @@ function layer:draw()
 	end
 end
 
-function layer:innerDimensions()
-	local innerX = self.x
-	local innerY = self.y
-	local innerWidth = self.width
-	local innerHeight = self.height
+function layer:onKeyInternal(keyCode)
+	if self.menu then
+		-- Toggle menu (Control)
+		if keyCode == 29 then
+			self:toggleMenuFocus()
+		
+		-- Navigate menu
+		elseif self:isMenuActive() then
+			local menuItem = self:selectedMenuItem()
+			
+			-- Up
+			if keyCode == 200 then
+				if menuItem.items then
+					self.menuSubSelectionIndex = self.menuSubSelectionIndex - 1
+					if self.menuSubSelectionIndex < 1 then
+						self.menuSubSelectionIndex = # menuItem.items
+					end
+				end
 	
-	if self.border then
-		innerX = innerX + 1
-		innerY = innerY + 1
-		innerWidth = innerWidth - 2
-		innerHeight = innerHeight - 2
+			-- Down
+			elseif keyCode == 208 then
+				if menuItem.items then
+					self.menuSubSelectionIndex = self.menuSubSelectionIndex + 1
+					if self.menuSubSelectionIndex > # menuItem.items then
+						self.menuSubSelectionIndex = 1
+					end
+				end
+	
+			-- Left
+			elseif keyCode == 203 then
+				self.menuSelectionIndex = self.menuSelectionIndex - 1
+				if self.menuSelectionIndex < 1 then
+					self.menuSelectionIndex = # self.menu.items
+				end
+				self.menuSubSelectionIndex = 1
+	
+			-- Right
+			elseif keyCode == 205 then
+				self.menuSelectionIndex = self.menuSelectionIndex + 1
+				if self.menuSelectionIndex > # self.menu.items then
+					self.menuSelectionIndex = 1
+				end
+				self.menuSubSelectionIndex = 1
+
+			-- Enter
+			elseif keyCode == 28 then
+				if menuItem.onAction then
+					menuItem.onAction(self)
+				elseif menuItem.items then
+					local subMenuItem = self:selectedSubMenuItem()
+					if subMenuItem and subMenuItem.onAction then
+						subMenuItem.onAction(self)
+					end
+				end
+				self:focusMenu(false)
+			end
+		end
 	end
+end
+
+function layer:innerDimensions(innerX, innerY, innerWidth, innerHeight)
+	-- Call base
+	innerX, innerY, innerWidth, innerHeight = self._base.innerDimensions(self, innerX, innerY, innerWidth, innerHeight)
 	
 	if self.title then
 		innerY = innerY + 2
@@ -266,9 +212,11 @@ end
 -- Component functions
 
 function layer:getComponent(name)
-	for index, component in ipairs(self.components) do
-		if component.name == name then
-			return component, index 
+	if self.components then
+		for index, component in ipairs(self.components) do
+			if component.name == name then
+				return component, index 
+			end
 		end
 	end
 	return nil, nil
@@ -282,6 +230,10 @@ function layer:getActiveComponent()
 end
 
 function layer:removeComponent(name)
+	if not self.components then
+		return
+	end
+	
 	-- Get component
 	local component, index = self:getComponent(name)
 	
@@ -296,9 +248,13 @@ function layer:removeComponent(name)
 end
 	
 function layer:addComponent(name, component)
-	-- Remove component if exists
-	self:removeComponent(name)
-	
+	if not self.components then
+		self.components = {}
+	else
+		-- Remove component if exists
+		self:removeComponent(name)
+	end
+
 	-- Add component
 	component.name = name
 	component.parent = self

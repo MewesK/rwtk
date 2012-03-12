@@ -17,41 +17,17 @@ button = rwtk_core.class(rwtk_app.component, function(_self, properties)
 	
 	-- Call base constructor
 	rwtk_app.component.init(_self, properties)
-	
-	-- Internal onKey handler
-	_self.onKey = function(self, keyCode)
-		
-	
-		-- Call event handler
-		if self.__onKey then
-			self.__onKey(self, keyCode)
-		end
-	end
 end)
 
--- General functions
+-- Base functions
 
-function button:draw(innerX, innerY, innerWidth, innerHeight)
-	-- Draw frame
-	if self.border then
-		rwtk_draw.drawRectangle(innerX + self.x, innerY + self.y, self.width, self.height)
-	end
-	
-	-- Calculate inner dimensions
-	local _innerX, _innerY, _innerWidth, _innerHeight = self:innerDimensions(innerX, innerY, innerWidth, innerHeight)
-	
-	-- Draw text
-	if self.text then
-		term.setCursorPos(_innerX, _innerY)
-		if self.focused then
-			term.write(rwtk_string.ellipsis('>'..self.text, _innerWidth))
-		else
-			term.write(rwtk_string.ellipsis(self.text, _innerWidth))
-		end
-	end
-	
-	-- Draw base.base
-	self._base.draw(self, innerX, innerY, innerWidth, innerHeight)
+function button:onDrawInternal()
+	-- Draw base
+	self._base.onDrawInternal(self, innerX, innerY, innerWidth, innerHeight)
+end
+
+function button:onKeyInternal(keyCode)
+	-- do something
 end
 
 -- Factory function
