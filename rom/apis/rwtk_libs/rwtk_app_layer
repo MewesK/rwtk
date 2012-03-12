@@ -6,14 +6,14 @@
 -----------------------------------------------------------------------------
 
 -- Using:
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_app')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_draw')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 
 -- Base layer class
-layer = rwtk_core.class(function(_self, properties)
+layer = rwtk_core.class(rwtk_app.component, function(_self, properties)
+	-- Default properties
 	_self.title = nil
-	_self.border = true
-	_self.padding = 1
 	_self.visible = false
 	_self.width, _self.height = term.getSize()
 	
@@ -24,32 +24,34 @@ layer = rwtk_core.class(function(_self, properties)
 	_self.components = {}
 	_self.componentFocusIndex = 0
 	
-	-- Copy properties
+	-- User properties
 	if properties then
+		-- Copy properties
 		for key, value in pairs(properties) do
 			_self[key] = value
 		end
+	
+		-- Property logic
+		if not _self.x or not _self.y then
+			_self.x, _self.y = rwtk_draw.centeredCoordinates(_self.width, _self.height)
+		end
+		
+		if not _self.border then
+			_self.padding = 0
+		end
+		
+		-- Default menu alignment: top
+		if _self.menu and not _self.menu.align then
+			_self.menu.align = 'top'
+		end
+	
+		-- Backup user onKey handler
+		if _self.onKey then
+			_self.__onKey = _self.onKey
+		end
 	end
 	
-	-- Property logic
-	if not _self.x or not _self.y then
-		_self.x, _self.y = rwtk_draw.centeredCoordinates(_self.width, _self.height)
-	end
-	
-	if not _self.border then
-		_self.padding = 0
-	end
-	
-	-- Default menu alignment: top
-	if _self.menu and not _self.menu.align then
-		_self.menu.align = 'top'
-	end
-	
-	-- Menu key event handler
-	if _self.onKey then
-		_self.__onKey = _self.onKey
-	end
-	
+	-- Internal onKey handler
 	_self.onKey = function(self, keyCode)
 		if self.menu then
 			-- Toggle menu (Control)

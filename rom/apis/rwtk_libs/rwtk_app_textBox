@@ -6,17 +6,19 @@
 -----------------------------------------------------------------------------
 
 -- Using:
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_app')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_draw')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
-os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_layer')
 
 -- TextBox component class
-textBox = rwtk_core.class(rwtk_app_component_label.label, function(_self, properties)
+textBox = rwtk_core.class(rwtk_app.component, function(_self, properties)
+	-- Default properties
 	_self.focusable = true
 	
 	-- Call base constructor
-	rwtk_app_component_label.label.init(_self, properties)
+	rwtk_app.component.init(_self, properties)
 	
+	-- Internal onKey handler
 	_self.onKey = function(self, keyCode)
 		
 	
@@ -44,7 +46,7 @@ function textBox:draw(innerX, innerY, innerWidth, innerHeight)
 	end
 	
 	-- Draw base.base
-	self._base._base.draw(self, innerX, innerY, innerWidth, innerHeight)
+	self._base.draw(self, innerX, innerY, innerWidth, innerHeight)
 end
 
 function textBox:innerDimensions(innerX, innerY, innerWidth, innerHeight)
