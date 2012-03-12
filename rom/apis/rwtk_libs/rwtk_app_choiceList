@@ -10,8 +10,8 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_app')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_draw')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 
--- SingleChoiceList component class
-singleChoiceList = rwtk_core.class(rwtk_app.component, function(_self, properties)
+-- ChoiceList component class
+choiceList = rwtk_core.class(rwtk_app.component, function(_self, properties)
 	-- Default properties
 	_self.focusable = true
 	_self.items = {}
@@ -23,17 +23,17 @@ end)
 
 -- Base functions
 
-function singleChoiceList:onDrawInternal()
+function choiceList:onDrawInternal()
 	-- Draw base
 	self._base.onDrawInternal(self, innerX, innerY, innerWidth, innerHeight)
 end
 
-function singleChoiceList:onKeyInternal(keyCode)
+function choiceList:onKeyInternal(keyCode)
 	-- do something
 end
 
 -- Factory function
 
 function create(properties)
-	return singleChoiceList(properties);
+	return choiceList(properties);
 end

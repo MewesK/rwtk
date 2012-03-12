@@ -21,17 +21,17 @@ end)
 
 -- Base functions
 
-function textBox:onDrawInternal()
-	-- Draw base
-	self._base.onDrawInternal(self, innerX, innerY, innerWidth, innerHeight)
-end
-
 function textBox:innerDimensions(innerX, innerY, innerWidth, innerHeight)
 	innerX, innerY, innerWidth, innerHeight = self._base.innerDimensions(self, innerX, innerY, innerWidth, innerHeight)
 	
 	-- scrollbars
 	
 	return innerX, innerY, innerWidth, innerHeight
+end
+
+function textBox:onDrawInternal()
+	-- Draw base
+	self._base.onDrawInternal(self, innerX, innerY, innerWidth, innerHeight)
 end
 
 function textBox:onKeyInternal(keyCode)

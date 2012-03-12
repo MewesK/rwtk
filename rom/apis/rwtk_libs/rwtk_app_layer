@@ -33,6 +33,25 @@ end)
 
 -- Base functions
 
+function layer:innerDimensions(innerX, innerY, innerWidth, innerHeight)
+	-- Call base
+	innerX, innerY, innerWidth, innerHeight = self._base.innerDimensions(self, innerX, innerY, innerWidth, innerHeight)
+	
+	if self.title then
+		innerY = innerY + 2
+		innerHeight = innerHeight - 2
+	end
+	
+	if self.menu then
+		innerHeight = innerHeight - 2
+		if self.menu.align == 'top' then
+			innerY = innerY + 2
+		end
+	end
+	
+	return innerX, innerY, innerWidth, innerHeight
+end
+
 function layer:onDrawInternal(innerX, innerY, innerWidth, innerHeight)
 	-- Call base
 	self._base.onDrawInternal(self, innerX, innerY, innerWidth, innerHeight, true)
@@ -188,25 +207,6 @@ function layer:onKeyInternal(keyCode)
 			end
 		end
 	end
-end
-
-function layer:innerDimensions(innerX, innerY, innerWidth, innerHeight)
-	-- Call base
-	innerX, innerY, innerWidth, innerHeight = self._base.innerDimensions(self, innerX, innerY, innerWidth, innerHeight)
-	
-	if self.title then
-		innerY = innerY + 2
-		innerHeight = innerHeight - 2
-	end
-	
-	if self.menu then
-		innerHeight = innerHeight - 2
-		if self.menu.align == 'top' then
-			innerY = innerY + 2
-		end
-	end
-	
-	return innerX, innerY, innerWidth, innerHeight
 end
 
 -- Component functions

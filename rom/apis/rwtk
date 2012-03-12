@@ -7,12 +7,11 @@
 
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_app')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_button')
+os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_choiceList')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_config')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_label')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_layer')
-os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_multiChoiceList')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_pictureBox')
-os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_singleChoiceList')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_app_textBox')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_core')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_draw')

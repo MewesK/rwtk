@@ -55,6 +55,14 @@ end)
 
 -- Base functions
 
+function component:innerDimensions(innerX, innerY, innerWidth, innerHeight)
+	innerX = innerX + self.x + self.padding - 1
+	innerY = innerY + self.y + self.padding - 1
+	innerWidth = self.width - 2 * self.padding
+	innerHeight = self.height - 2 * self.padding
+	return innerX, innerY, innerWidth, innerHeight
+end
+
 function component:onDrawInternal(innerX, innerY, innerWidth, innerHeight, keepBackground)	
 	if not keepBackground then
 	-- Clear
@@ -69,14 +77,6 @@ end
 
 function component:onKeyInternal(keyCode)
 	-- do something
-end
-
-function component:innerDimensions(innerX, innerY, innerWidth, innerHeight)
-	innerX = innerX + self.x + self.padding - 1
-	innerY = innerY + self.y + self.padding - 1
-	innerWidth = self.width - 2 * self.padding
-	innerHeight = self.height - 2 * self.padding
-	return innerX, innerY, innerWidth, innerHeight
 end
 
 -----------------------------------------------------------------------------
