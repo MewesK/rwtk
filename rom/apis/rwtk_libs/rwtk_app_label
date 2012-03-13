@@ -34,8 +34,7 @@ function label:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
 	-- Draw text
 	if self.text then
 		local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(outerX, outerY, outerWidth, outerHeight)
-		term.setCursorPos(innerX, innerY)
-		term.write(rwtk_string.ellipsis(self.text, self.width - 2 * self.padding))
+		rwtk_draw.drawText(self.text, innerX, innerY, innerWidth, innerHeight)
 	end
 end
 

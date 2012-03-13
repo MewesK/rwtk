@@ -33,15 +33,15 @@ myLabel = rwtk_app_label.create({
 	--border = false,
 	x = 1,
 	y = 1,
-	width = 20,
-	height = 5,
-	text = 'fbieuf euf wieuf eufehfiuhf fhiuefheiufeh efhapia ohguihgda pa pogiapgof gagpguh pgh paigpg gh pogh ap.'
+	width = 30,
+	height = 7,
+	text = 'Fbieuf euf wieuf eufehfiuhf fhiu efheiu feh.\nEfhapia ohgu ihgda pa pogi apgof gagpguh pgh paigpg gh pogh ap, euf ehfiuhf fhiu efheiu feh..'
 });
 
 -- Create OkayButton
 myOkayButton = rwtk_app_button.create({
-	x = 1,
-	y = 6,
+	x = 6,
+	y = 8,
 	width = 10,
 	height = 3,
 	text = 'Okay'
@@ -49,8 +49,8 @@ myOkayButton = rwtk_app_button.create({
 
 -- Create CancelButton
 myCancelButton = rwtk_app_button.create({
-	x = 11,
-	y = 6,
+	x = 16,
+	y = 8,
 	width = 10,
 	height = 3,
 	text = 'Cancel'
