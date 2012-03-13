@@ -45,7 +45,7 @@ function textBox:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
 	
 	-- Draw text
 	if self.text then
-		rwtk_draw_text.drawText(self.text, innerX, innerY, innerWidth, innerHeight, self.scrollX, self.scrollY, self.wordWrap)
+		rwtk_draw_text.drawText(self.text, innerX, innerY, innerWidth, innerHeight, self.scrollX, self.scrollY, self.wordWrap, false, self.cursorX, self.cursorY, nil)
 	end
 	
 	--if self.cursorX > self.

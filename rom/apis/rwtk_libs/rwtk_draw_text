@@ -9,43 +9,44 @@
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_core')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 
-function drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, rx, ry, i)
+function drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, dontDraw, cursorX, cursorY, cursorI)
 	local returnPosition = false
 	local returnIndex = false
 	
-	if (rx and ry) then
+	if (cursorX and cursorY) then
 		returnIndex = true
-	elseif i then
+	elseif cursorI then
 		returnPosition = true
 	end
 
 	local _x = 1 - scrollX
 	local _y = 1 - scrollY
 	local _i = 1
+	local returnX, returnY, returnI
 	
 	local function linebreak()
 		_x = 1 - scrollX
 		_y = _y + 1
 		_i = _i + 1
-		if returnPosition and _i == i then
-			return _x, _y
+		if returnPosition and _i == cursorI then
+			returnX = _x
+			returnY = _y
 		end
-		return nil
 	end
 	
 	local function printCharacter(character)
-		if _x <= w and _x > 0 and _y <= h and _y > 0 and not returnPosition and not returnIndex then
+		if _x <= w and _x > 0 and _y <= h and _y > 0 and not dontDraw then
 			term.setCursorPos(x + _x - 1, y + _y - 1)
 			term.write(character)
 		end
 		_x = _x + 1
 		_i = _i + 1
-		if returnPosition and _i == i then
-			return _x, _y
-		elseif returnIndex and _x == rx and _y == ry then
-			return _i
+		if returnPosition and _i == cursorI then
+			returnX = _x
+			returnY = _y
+		elseif returnIndex and _x == cursorX and _y == cursorY then
+			returnI = _i
 		end
-		return nil
 	end
 	
 	-- Print lines
@@ -53,58 +54,52 @@ function drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, rx, ry, i)
 	for index, line in ipairs(lines) do
 		-- Print words
 		local words = rwtk_string.split(line, ' ')
-		local _t1, _t2
 		for index, word in ipairs(words) do
 			-- WordWrap
 			if wordWrap and _x + # word > w then
-				_t1, _t2 = linebreak()
-				if _t1 then
-					return _t1, _t2
-				end
+				linebreak()
 			end
 			
 			-- Print letters
 			for letterIndex = 1, # word do
-				_t1, _t2 = printCharacter(word:sub(letterIndex, letterIndex))
-				if _t1 then
-					return _t1, _t2
-				end
+				printCharacter(word:sub(letterIndex, letterIndex))
 			end
 			
 			-- Print space
-			_t1, _t2 = printCharacter(' ')
-			if _t1 then
-				return _t1, _t2
-			end
+			printCharacter(' ')
 		end
 		-- End of line
-		_t1, _t2 = linebreak()
-		if _t1 then
-			return _t1, _t2
-		end
+		linebreak()
 	end
+	
+	return returnX, returnY, returnI
 end
 
 -- String Index <=> Relative Position
 
-function relativePositionToIndex(rx, ry, text, x, y, w, h, scrollX, scrollY, wordWrap)
-	return drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, rx, ry, nil)
+function relativePositionToIndex(cursorX, cursorY, text, x, y, w, h, scrollX, scrollY, wordWrap)
+	local returnX, returnY, returnI = drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, cursorX, cursorY, nil)
+	return returnI
 end
 
-function indexToRelativePosition(i, text, x, y, w, h, scrollX, scrollY, wordWrap)
-	return drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, nil, nil, i)
+function indexToRelativePosition(cursorI, text, x, y, w, h, scrollX, scrollY, wordWrap)
+	local returnX, returnY, returnI = drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, nil, nil, cursorI)
+	return returnX, returnY
 end
 
 -- String Index <=> Absolute Position
 
-function absolutePositionToIndex(ax, ay, text, x, y, w, h, scrollX, scrollY, wordWrap)
-	return relativePositionToIndex(ax - x, ay - y, text, x, y, w, h, scrollX, scrollY, wordWrap)
+function absolutePositionToIndex(cursorX, cursorY, text, x, y, w, h, scrollX, scrollY, wordWrap)
+	return relativePositionToIndex(cursorX - x, cursorY - y, text, x, y, w, h, scrollX, scrollY, wordWrap)
 end
 
-function indexToAbsolutePosition(i, text, x, y, w, h, scrollX, scrollY, wordWrap)
-	local _x, _y = indexToRelativePosition(i, text, x, y, w, h, scrollX, scrollY, wordWrap)
-	if _x and _y then
-		return _x + x, _y + y
+function indexToAbsolutePosition(cursorI, text, x, y, w, h, scrollX, scrollY, wordWrap)
+	local returnX, returnY = indexToRelativePosition(cursorI, text, x, y, w, h, scrollX, scrollY, wordWrap)
+	if returnX then
+		returnX = returnX + x
 	end
-	return false, false
+	if returnY then
+		returnY = returnY + y
+	end
+	return returnX, returnY
 end
