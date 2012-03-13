@@ -76,10 +76,12 @@ function drawRectangle(x, y, w, h)
 	drawHorizontalLine(x, y + h - 1, w, true)
 end
 
-function centeredCoordinates(w, h)
-	local _w, _h = term.getSize()
-	local x = rwtk_core.round(_w / 2.0 - w / 2.0, 0)
-	local y = rwtk_core.round(_h / 2.0 - h / 2.0, 0)
+function centeredCoordinates(innerWidth, innerHeight, outerWidth, outerHeight)
+	if not outerWidth or not outerHeight then
+		outerWidth, outerHeight = term.getSize()
+	end
+	local x = rwtk_core.round(outerWidth / 2.0 - innerWidth / 2.0, 0)
+	local y = rwtk_core.round(outerHeight / 2.0 - innerHeight / 2.0, 0)
 	if x < 1 then x = 1 end
 	if y < 1 then y = 1 end
 	return x, y 

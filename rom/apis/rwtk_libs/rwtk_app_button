@@ -35,13 +35,18 @@ function button:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
 	
 	-- Draw text
 	if self.text then
-		local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(outerX, outerY, outerWidth, outerHeight)
-		term.setCursorPos(innerX, innerY)
+		local _text = rwtk_string.ellipsis(self.text, self.width - 2 - 2 * self.padding)
 		if self.focused then
-			term.write('>'..rwtk_string.ellipsis(self.text, self.width - 2 - 2 * self.padding)..'<')
+			_text = '>'.._text..'<'
 		else
-			term.write(' '..rwtk_string.ellipsis(self.text, self.width - 2 - 2 * self.padding)..' ')
+			_text = ' '.._text..' '
 		end
+		
+		local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(outerX, outerY, outerWidth, outerHeight)
+		local textX, textY = rwtk_draw.centeredCoordinates(# _text, 1, self.width, self.height)
+		term.setCursorPos(innerX + textX - 1, innerY + textY - 1)
+		term.write(_text)
+		
 	end
 end
 
