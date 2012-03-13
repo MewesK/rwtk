@@ -98,7 +98,7 @@ end
 -- String Index <=> Absolute Position
 
 function absolutePositionToIndex(ax, ay, text, x, y, w, h, scrollX, scrollY, wordWrap)
-	return relativePositionToIndex(rx - x, ry - y, text, x, y, w, h, scrollX, scrollY, wordWrap)
+	return relativePositionToIndex(ax - x, ay - y, text, x, y, w, h, scrollX, scrollY, wordWrap)
 end
 
 function indexToAbsolutePosition(i, text, x, y, w, h, scrollX, scrollY, wordWrap)
