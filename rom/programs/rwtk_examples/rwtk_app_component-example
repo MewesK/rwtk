@@ -18,8 +18,8 @@ local pictureIndex = 0
 myApplication = rwtk_app.create({
 	-- onKey
 	onKey = function(self, keyCode)
-		-- E
-		if keyCode == 18 then
+		-- Break
+		if keyCode == 197 then
 			self:stop()
 		end
 	end

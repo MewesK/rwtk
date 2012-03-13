@@ -48,6 +48,8 @@ function textBox:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
 		rwtk_draw_text.drawText(self.text, innerX, innerY, innerWidth, innerHeight, self.scrollX, self.scrollY, self.wordWrap)
 	end
 	
+	--if self.cursorX > self.
+	
 	-- Set Cursor
 	if self.focused then
 		term.setCursorBlink(true)
@@ -56,7 +58,72 @@ function textBox:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
 end
 
 function textBox:onKeyInternal(keyCode)
-	-- do something
+	-- Backspace
+	if keyCode == 14 then
+		if self.text then
+			local _text = ''
+			if self.cursorX - 2 >= 1 then
+				_text = self.text:sub(1, self.cursorX - 2) .. _text
+				self.cursorX = self.cursorX - 1
+			end
+			if self.cursorX >= 1 then
+				_text = _text .. self.text:sub(self.cursorX)
+			end
+			self.text = _text
+		end
+		
+	-- Enter
+	elseif keyCode == 28 then
+		self:onCharInternal('\n')
+		
+	-- Up
+	elseif keyCode == 200 then
+		self.cursorY = self.cursorY - 1
+
+	-- Down
+	elseif keyCode == 208 then
+		self.cursorY = self.cursorY + 1
+
+	-- Left
+	elseif keyCode == 203 then
+		self.cursorX = self.cursorX - 1
+
+	-- Right
+	elseif keyCode == 205 then
+		self.cursorX = self.cursorX + 1
+
+	-- Delete
+	elseif keyCode == 211 then
+		if self.text then
+			local _text = ''
+			if self.cursorX - 1 >= 1 then
+				_text = self.text:sub(1, self.cursorX - 1) .. _text
+			end
+			if self.cursorX  + 1 >= 1 then
+				_text = _text .. self.text:sub(self.cursorX + 1)
+			end
+			self.text = _text
+		end
+	end
+end
+
+function textBox:onCharInternal(char)
+	if not self.text then
+		self.text = ''
+	end
+	
+	local _text = char
+	
+	if self.cursorX - 1 >= 1 then
+		_text = self.text:sub(1, self.cursorX - 1) .. _text
+	end
+	
+	if self.cursorX >= 1 then
+		_text = _text .. self.text:sub(self.cursorX)
+	end
+	
+	self.text = _text
+	self.cursorX = self.cursorX + 1
 end
 
 -- Factory function
