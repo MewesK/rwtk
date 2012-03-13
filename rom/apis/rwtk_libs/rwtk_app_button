@@ -12,8 +12,16 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 
 -- Button component class
 button = rwtk_core.class(rwtk_app.component, function(_self, properties)
+	if not properties.width and properties.text then
+		properties.width = # properties.text + 2
+		if properties.borders then
+			properties.width = properties.width + 2
+		end
+	end
+	
 	-- Default properties
 	_self.focusable = true
+	_self.text = nil
 	
 	-- Call base constructor
 	rwtk_app.component.init(_self, properties)
@@ -21,9 +29,20 @@ end)
 
 -- Base functions
 
-function button:onDrawInternal()
+function button:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
 	-- Draw base
-	self._base.onDrawInternal(self, innerX, innerY, innerWidth, innerHeight)
+	self._base.onDrawInternal(self, outerX, outerY, outerWidth, outerHeight)
+	
+	-- Draw text
+	if self.text then
+		local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(outerX, outerY, outerWidth, outerHeight)
+		term.setCursorPos(innerX, innerY)
+		if self.focused then
+			term.write('>'..rwtk_string.ellipsis(self.text, self.width - 2 - 2 * self.padding)..'<')
+		else
+			term.write(' '..rwtk_string.ellipsis(self.text, self.width - 2 - 2 * self.padding)..' ')
+		end
+	end
 end
 
 function button:onKeyInternal(keyCode)

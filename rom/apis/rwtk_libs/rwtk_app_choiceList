@@ -23,9 +23,11 @@ end)
 
 -- Base functions
 
-function choiceList:onDrawInternal()
+function choiceList:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
 	-- Draw base
-	self._base.onDrawInternal(self, innerX, innerY, innerWidth, innerHeight)
+	self._base.onDrawInternal(self, outerX, outerY, outerWidth, outerHeight)
+	
+	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(outerX, outerY, outerWidth, outerHeight)
 end
 
 function choiceList:onKeyInternal(keyCode)

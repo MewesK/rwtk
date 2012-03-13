@@ -30,18 +30,38 @@ myFrame = rwtk_app_frame.create({
 
 -- Create Label
 myLabel = rwtk_app_label.create({
-	border = true,
+	--border = false,
 	x = 1,
 	y = 1,
-	width = 10,
+	width = 20,
 	height = 5,
 	text = 'fbieuf euf wieuf eufehfiuhf fhiuefheiufeh efhapia ohguihgda pa pogiapgof gagpguh pgh paigpg gh pogh ap.'
 });
 
+-- Create OkayButton
+myOkayButton = rwtk_app_button.create({
+	x = 1,
+	y = 6,
+	width = 10,
+	height = 3,
+	text = 'Okay'
+});
+
+-- Create CancelButton
+myCancelButton = rwtk_app_button.create({
+	x = 11,
+	y = 6,
+	width = 10,
+	height = 3,
+	text = 'Cancel'
+});
+
 -- Prepare application
-myFrame:addComponent('myLabel', myLabel);
+myFrame:addComponent('myLabel', myLabel)
+myFrame:addComponent('myOkayButton', myOkayButton)
+myFrame:addComponent('myCancelButton', myCancelButton)
 myApplication:addFrame('myFrame', myFrame)
-myApplication:focusFrame('myFrame');
+myApplication:focusFrame('myFrame')
 		
 -- Start application
 myApplication:start()

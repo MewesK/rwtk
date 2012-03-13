@@ -7,11 +7,17 @@
 
 -- Using:
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_app')
-os.loadAPI('/rom/apis/rwtk_libs/rwtk_draw')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 
 -- Label component class
 label = rwtk_core.class(rwtk_app.component, function(_self, properties)
+	if not properties.width and properties.text then
+		properties.width = # properties.text
+		if properties.borders then
+			properties.width = properties.width + 2
+		end
+	end
+
 	-- Default properties
 	_self.text = nil
 	
@@ -21,13 +27,14 @@ end)
 
 -- Base functions
 
-function label:onDrawInternal(innerX, innerY, innerWidth, innerHeight)
+function label:onDrawInternal(outerX, outerY, outerWidth, outerHeight)		
 	-- Draw base
-	self._base.onDrawInternal(self, innerX, innerY, innerWidth, innerHeight)
+	self._base.onDrawInternal(self, outerX, outerY, outerWidth, outerHeight)
 	
 	-- Draw text
 	if self.text then
-		term.setCursorPos(innerX + self.padding, innerY + self.padding)
+		local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(outerX, outerY, outerWidth, outerHeight)
+		term.setCursorPos(innerX, innerY)
 		term.write(rwtk_string.ellipsis(self.text, self.width - 2 * self.padding))
 	end
 end

@@ -33,31 +33,31 @@ end)
 
 -- Base functions
 
-function frame:innerDimensions(innerX, innerY, innerWidth, innerHeight)
+function frame:innerDimensions(outerX, outerY, outerWidth, outerHeight)
 	-- Call base
-	innerX, innerY, innerWidth, innerHeight = self._base.innerDimensions(self, innerX, innerY, innerWidth, innerHeight)
+	outerX, outerY, outerWidth, outerHeight = self._base.innerDimensions(self, outerX, outerY, outerWidth, outerHeight)
 	
 	if self.title then
-		innerY = innerY + 2
-		innerHeight = innerHeight - 2
+		outerY = outerY + 2
+		outerHeight = outerHeight - 2
 	end
 	
 	if self.menu then
-		innerHeight = innerHeight - 2
+		outerHeight = outerHeight - 2
 		if self.menu.align == 'top' then
-			innerY = innerY + 2
+			outerY = outerY + 2
 		end
 	end
 	
-	return innerX, innerY, innerWidth, innerHeight
+	return outerX, outerY, outerWidth, outerHeight
 end
 
-function frame:onDrawInternal(innerX, innerY, innerWidth, innerHeight)
+function frame:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
 	-- Call base
-	self._base.onDrawInternal(self, innerX, innerY, innerWidth, innerHeight, true)
+	self._base.onDrawInternal(self, outerX, outerY, outerWidth, outerHeight, true)
 	
-	local mx = self.x + self.padding
-	local my = self.y + self.padding
+	local mx = outerX + self.x + self.padding - 1
+	local my = outerY + self.y + self.padding - 1
 	
 	-- Draw title
 	if self.title then
@@ -67,9 +67,6 @@ function frame:onDrawInternal(innerX, innerY, innerWidth, innerHeight)
 		term.write(rwtk_string.ellipsis(self.title, self.width - 2 - 2 * self.padding))
 		my = my + 2
 	end
-	
-	-- Calculate inner dimensions
-	local _innerX, _innerY, _innerWidth, _innerHeight = self:innerDimensions(innerX, innerY, innerWidth, innerHeigh)
 	
 	-- Draw menu
 	if self.menu then
@@ -150,11 +147,37 @@ function frame:onDrawInternal(innerX, innerY, innerWidth, innerHeight)
 end
 
 function frame:onKeyInternal(keyCode)
+	if not self:isMenuActive() then
+		-- Focus next focusable component
+		if keyCode == 15 then
+			if self.components and # self.components > 1 then
+				local focusIndex = self.componentFocusIndex
+				local focusName = nil
+				while true do
+					focusIndex = focusIndex + 1
+					if focusIndex > # self.components then
+						focusIndex = 0
+					elseif focusIndex == self.componentFocusIndex then
+						break
+					elseif self.components[focusIndex].focusable then
+						focusName = self.components[focusIndex].name
+						break
+					end
+				end
+				if focusName then
+					self:focusComponent(focusName)
+				else
+					self.componentFocusIndex = focusIndex
+				end
+			end
+		end
+	end
+	
 	if self.menu then
 		-- Toggle menu (Control)
 		if keyCode == 29 then
 			self:toggleMenuFocus()
-		
+			
 		-- Navigate menu
 		elseif self:isMenuActive() then
 			local menuItem = self:selectedMenuItem()
@@ -263,13 +286,16 @@ end
 
 function frame:focusComponent(name)
 	-- Get component
-	local frame, index = self:getComponent(name)
-	
-	-- Focus component
-	if index then
+	local component, index = self:getComponent(name)
+	if component then
+		-- DeFocus old component
+		if self.componentFocusIndex > 0 then
+			self.components[self.componentFocusIndex].focused = false
+		end
+		
+		-- Focus new component
+		component.focused = true;
 		self.componentFocusIndex = index
-	else
-		self.componentFocusIndex = 0
 	end
 end
 

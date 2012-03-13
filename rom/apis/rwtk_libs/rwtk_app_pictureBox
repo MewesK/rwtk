@@ -12,6 +12,7 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 
 -- PictureBox component class
 pictureBox = rwtk_core.class(rwtk_app.component, function(_self, properties)
+	-- Default properties
 	_self.pictureMatrix = nil
 	
 	-- Call base constructor
@@ -31,14 +32,15 @@ end)
 
 -- Base functions
 
-function pictureBox:onDrawInternal(innerX, innerY, innerWidth, innerHeight)
+function pictureBox:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
 	-- Draw base
-	self._base.onDrawInternal(self, innerX, innerY, innerWidth, innerHeight)
+	self._base.onDrawInternal(self, outerX, outerY, outerWidth, outerHeight)
 	
 	-- Draw pixels
+	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(outerX, outerY, outerWidth, outerHeight)
 	for y = 1, # self.pictureMatrix do
 		for x = 1, # self.pictureMatrix[y] do
-			term.setCursorPos(innerX + x - 1 + self.padding, innerY + y - 1 + self.padding)
+			term.setCursorPos(innerX + x - 1, innerY + y - 1)
 			term.write(self:getPixel(x, y))
 		end
 	end

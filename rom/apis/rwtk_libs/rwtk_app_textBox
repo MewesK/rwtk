@@ -14,6 +14,7 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 textBox = rwtk_core.class(rwtk_app.component, function(_self, properties)
 	-- Default properties
 	_self.focusable = true
+	_self.text = nil
 	
 	-- Call base constructor
 	rwtk_app.component.init(_self, properties)
@@ -21,17 +22,19 @@ end)
 
 -- Base functions
 
-function textBox:innerDimensions(innerX, innerY, innerWidth, innerHeight)
-	innerX, innerY, innerWidth, innerHeight = self._base.innerDimensions(self, innerX, innerY, innerWidth, innerHeight)
+function textBox:innerDimensions(outerX, outerY, outerWidth, outerHeight)
+	outerX, outerY, outerWidth, outerHeight = self._base.innerDimensions(self, outerX, outerY, outerWidth, outerHeight)
 	
 	-- scrollbars
 	
-	return innerX, innerY, innerWidth, innerHeight
+	return outerX, outerY, outerWidth, outerHeight
 end
 
-function textBox:onDrawInternal()
+function textBox:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
 	-- Draw base
-	self._base.onDrawInternal(self, innerX, innerY, innerWidth, innerHeight)
+	self._base.onDrawInternal(self, outerX, outerY, outerWidth, outerHeight)
+	
+	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(outerX, outerY, outerWidth, outerHeight)
 end
 
 function textBox:onKeyInternal(keyCode)
