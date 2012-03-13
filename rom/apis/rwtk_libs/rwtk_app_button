@@ -46,12 +46,7 @@ function button:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
 		local textX, textY = rwtk_draw.centeredCoordinates(# _text, 1, self.width, self.height)
 		term.setCursorPos(innerX + textX - 1, innerY + textY - 1)
 		term.write(_text)
-		
 	end
-end
-
-function button:onKeyInternal(keyCode)
-	-- do something
 end
 
 -- Factory function

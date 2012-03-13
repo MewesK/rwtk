@@ -15,7 +15,8 @@ local pictureIndex = 0
 myApplication = rwtk_app.create({
 	-- onKey
 	onKey = function(self, keyCode)
-		if keyCode == 18 then	-- E
+		-- E
+		if keyCode == 18 then
 			self:stop()
 		end
 	end
@@ -36,7 +37,7 @@ myLabel = rwtk_app_label.create({
 	width = 30,
 	height = 7,
 	text = 'Fbieuf euf wieuf eufehfiuhf fhiu efheiu feh.\nEfhapia ohgu ihgda pa pogi apgof gagpguh pgh paigpg gh pogh ap, euf ehfiuhf fhiu efheiu feh..'
-});
+})
 
 -- Create OkayButton
 myOkayButton = rwtk_app_button.create({
@@ -44,8 +45,14 @@ myOkayButton = rwtk_app_button.create({
 	y = 8,
 	width = 12,
 	height = 3,
-	text = 'Okay'
-});
+	text = 'Okay',
+	onKey = function(self, keyCode)
+		-- Enter
+		if keyCode == 28 then
+			myLabel.text = 'Okay'
+		end
+	end
+})
 
 -- Create CancelButton
 myCancelButton = rwtk_app_button.create({
@@ -53,8 +60,14 @@ myCancelButton = rwtk_app_button.create({
 	y = 8,
 	width = 12,
 	height = 3,
-	text = 'Cancel'
-});
+	text = 'Cancel',
+	onKey = function(self, keyCode)
+		-- Enter
+		if keyCode == 28 then
+			myLabel.text = 'Cancel'
+		end
+	end
+})
 
 -- Prepare application
 myFrame:addComponent('myLabel', myLabel)

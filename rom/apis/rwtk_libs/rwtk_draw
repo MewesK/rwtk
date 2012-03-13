@@ -9,33 +9,6 @@
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_core')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 
-function drawText(text, x, y, w, h)
-	local lines = rwtk_string.split(text, '\n')
-	local _x = 1
-	local _y = 1
-	local function linebreak()
-		_x = 1
-		_y = _y + 1
-		return _y - 1 == h
-	end
-	for index, line in ipairs(lines) do
-		local words = rwtk_string.split(line, ' ')
-		for index, word in ipairs(words) do
-			if _x + # word > w then
-				if linebreak() then
-					return
-				end
-			end
-			term.setCursorPos(x + _x - 1, y + _y - 1)
-			term.write(word..' ')
-			_x = _x + # word + 1
-		end
-		if linebreak() then
-			return
-		end
-	end
-end
-
 function drawHorizontalLine(x, y, length, drawCorner, text)
     term.setCursorPos(x, y)
 	if drawCorner and length >= 2 then

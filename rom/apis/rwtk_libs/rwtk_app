@@ -66,8 +66,8 @@ end
 function component:onDrawInternal(outerX, outerY, outerWidth, outerHeight, keepBackground)
 	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(outerX, outerY, outerWidth, outerHeight)
 
+	-- Clear
 	if not keepBackground then
-		-- Clear
 		rwtk_draw.fillRectangle(innerX, innerY, self.width, self.height, ' ')
 	end
 	
@@ -214,11 +214,11 @@ function application:callEvent(eventHandler, ...)
 		else
 			local stopEvent = _callEvent(activeFrame, eventHandler, ...)
 			if not stopEvent then
-				_callEvent(activeFrame, eventHandler..'Internal', ...)
+				stopEvent = _callEvent(activeFrame, eventHandler..'Internal', ...)
 				local activeComponent = activeFrame:getActiveComponent()
-				if activeComponent then
-					local stopSubEvent = _callEvent(activeComponent, eventHandler, ...)
-					if not stopSubEvent then
+				if not stopEvent and activeComponent then
+					stopEvent = _callEvent(activeComponent, eventHandler, ...)
+					if not stopEvent then
 						_callEvent(activeComponent, eventHandler..'Internal', ...)
 					end
 				end
@@ -270,6 +270,7 @@ function application:start()
 end
 
 function application:stop()
+	
 	self.running = false
 end
 
