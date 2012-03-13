@@ -34,8 +34,7 @@ function label:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
 	-- Draw text
 	if self.text then
 		local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(outerX, outerY, outerWidth, outerHeight)
-		--rwtk_draw_text.drawText(self.text, innerX, innerY, innerWidth, innerHeight, 0, 0, true)
-		rwtk_draw_text.drawText(self.text, innerX, innerY, innerWidth, innerHeight, 2, 1, false)
+		rwtk_draw_text.drawText(self.text, innerX, innerY, innerWidth, innerHeight, 0, 0, true)
 	end
 end
 
