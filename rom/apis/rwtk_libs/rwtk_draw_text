@@ -34,7 +34,7 @@ function drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, rx, ry, i)
 	end
 	
 	local function printCharacter(character)
-		if _x <= w and _x > 0 and _y <= h and _y > 0  and not returnPosition and not returnIndex then
+		if _x <= w and _x > 0 and _y <= h and _y > 0 and not returnPosition and not returnIndex then
 			term.setCursorPos(x + _x - 1, y + _y - 1)
 			term.write(character)
 		end
@@ -42,7 +42,7 @@ function drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, rx, ry, i)
 		_i = _i + 1
 		if returnPosition and _i == i then
 			return _x, _y
-		else if returnIndex and _x == rx and _y == ry then
+		elseif returnIndex and _x == rx and _y == ry then
 			return _i
 		end
 		return nil

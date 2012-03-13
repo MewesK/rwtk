@@ -13,8 +13,15 @@ os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 -- TextBox component class
 textBox = rwtk_core.class(rwtk_app.component, function(_self, properties)
 	-- Default properties
+	_self.cursorX = 1
+	_self.cursorY = 1
 	_self.focusable = true
+	_self.isPassword = false
+	_self.multiLine = false
+	_self.scrollX = 0
+	_self.scrollY = 0
 	_self.text = nil
+	_self.wordWrap = false
 	
 	-- Call base constructor
 	rwtk_app.component.init(_self, properties)
@@ -35,6 +42,17 @@ function textBox:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
 	self._base.onDrawInternal(self, outerX, outerY, outerWidth, outerHeight)
 	
 	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(outerX, outerY, outerWidth, outerHeight)
+	
+	-- Draw text
+	if self.text then
+		rwtk_draw_text.drawText(self.text, innerX, innerY, innerWidth, innerHeight, self.scrollX, self.scrollY, self.wordWrap)
+	end
+	
+	-- Set Cursor
+	if self.focused then
+		term.setCursorBlink(true)
+		return false, innerX + self.cursorX - 1, innerY + self.cursorY - 1
+	end
 end
 
 function textBox:onKeyInternal(keyCode)

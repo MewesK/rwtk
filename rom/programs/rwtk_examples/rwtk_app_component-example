@@ -6,8 +6,11 @@
 -----------------------------------------------------------------------------
 
 local myApplication
-local myLabel
 local myFrame
+local myLabel
+local myTextBox
+local myOkayButton
+local myCancelButton
 
 local pictureIndex = 0
 
@@ -31,7 +34,7 @@ myFrame = rwtk_app_frame.create({
 
 -- Create Label
 myLabel = rwtk_app_label.create({
-	--border = false,
+	border = false,
 	x = 1,
 	y = 1,
 	width = 30,
@@ -39,10 +42,19 @@ myLabel = rwtk_app_label.create({
 	text = 'Fbieuf euf wieuf eufehfiuhf fhiu efheiu feh.\nEfhapia ohgu ihgda pa pogi apgof gagpguh pgh paigpg gh pogh ap, euf ehfiuhf fhiu efheiu feh..'
 })
 
+-- Create TextBox
+myTextBox = rwtk_app_textBox.create({
+	x = 1,
+	y = 8,
+	width = 30,
+	height = 3,
+	text = ''
+})
+
 -- Create OkayButton
 myOkayButton = rwtk_app_button.create({
 	x = 4,
-	y = 8,
+	y = 11,
 	width = 12,
 	height = 3,
 	text = 'Okay',
@@ -57,7 +69,7 @@ myOkayButton = rwtk_app_button.create({
 -- Create CancelButton
 myCancelButton = rwtk_app_button.create({
 	x = 16,
-	y = 8,
+	y = 11,
 	width = 12,
 	height = 3,
 	text = 'Cancel',
@@ -71,6 +83,7 @@ myCancelButton = rwtk_app_button.create({
 
 -- Prepare application
 myFrame:addComponent('myLabel', myLabel)
+myFrame:addComponent('myTextBox', myTextBox)
 myFrame:addComponent('myOkayButton', myOkayButton)
 myFrame:addComponent('myCancelButton', myCancelButton)
 myApplication:addFrame('myFrame', myFrame)

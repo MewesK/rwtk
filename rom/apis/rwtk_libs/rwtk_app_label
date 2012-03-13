@@ -20,6 +20,7 @@ label = rwtk_core.class(rwtk_app.component, function(_self, properties)
 
 	-- Default properties
 	_self.text = nil
+	_self.wordWrap = true
 	
 	-- Call base constructor
 	rwtk_app.component.init(_self, properties)
@@ -34,7 +35,7 @@ function label:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
 	-- Draw text
 	if self.text then
 		local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(outerX, outerY, outerWidth, outerHeight)
-		rwtk_draw_text.drawText(self.text, innerX, innerY, innerWidth, innerHeight, 0, 0, true)
+		rwtk_draw_text.drawText(self.text, innerX, innerY, innerWidth, innerHeight, 0, 0, self.wordWrap, nil, nil, nil)
 	end
 end
 
