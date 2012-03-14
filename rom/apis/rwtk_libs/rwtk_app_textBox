@@ -77,11 +77,11 @@ function textBox:onKeyInternal(keyCode)
 		self:onCharInternal('\n')
 		
 	-- Up
-	elseif keyCode == 200 then
+	elseif keyCode == 200 and self.multiLine then
 		self.cursorY = self.cursorY - 1
 
 	-- Down
-	elseif keyCode == 208 then
+	elseif keyCode == 208 and self.multiLine then
 		self.cursorY = self.cursorY + 1
 
 	-- Left

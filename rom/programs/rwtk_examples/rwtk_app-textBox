@@ -1,0 +1,93 @@
+-----------------------------------------------------------------------------
+-- Redworks Toolkit Example Application
+-- Author: MewK
+--
+-- This program is released under the MIT License (MIT).
+-----------------------------------------------------------------------------
+
+local myApplication
+local myFrame
+local myLabel
+local myTextBox
+local myOkayButton
+local myCancelButton
+
+local pictureIndex = 0
+
+-- Create Application
+myApplication = rwtk_app.create({
+	-- onKey
+	onKey = function(self, keyCode)
+		-- Break
+		if keyCode == 197 then
+			self:stop()
+		end
+	end
+})
+
+-- Create Main Frame
+myFrame = rwtk_app_frame.create({
+	border = true,
+	visible = true,
+	title = 'Component Example'
+})
+
+-- Create Label
+myLabel = rwtk_app_label.create({
+	border = false,
+	x = 1,
+	y = 1,
+	width = 30,
+	height = 7,
+	text = 'Fbieuf euf wieuf eufehfiuhf fhiu efheiu feh.\nEfhapia ohgu ihgda pa pogi apgof gagpguh pgh paigpg gh pogh ap, euf ehfiuhf fhiu efheiu feh..'
+})
+
+-- Create TextBox
+myTextBox = rwtk_app_textBox.create({
+	x = 1,
+	y = 8,
+	width = 30,
+	height = 3,
+	text = ''
+})
+
+-- Create OkayButton
+myOkayButton = rwtk_app_button.create({
+	x = 4,
+	y = 11,
+	width = 12,
+	height = 3,
+	text = 'Okay',
+	onKey = function(self, keyCode)
+		-- Enter
+		if keyCode == 28 then
+			myLabel.text = 'Okay'
+		end
+	end
+})
+
+-- Create CancelButton
+myCancelButton = rwtk_app_button.create({
+	x = 16,
+	y = 11,
+	width = 12,
+	height = 3,
+	text = 'Cancel',
+	onKey = function(self, keyCode)
+		-- Enter
+		if keyCode == 28 then
+			myLabel.text = 'Cancel'
+		end
+	end
+})
+
+-- Prepare application
+myFrame:addComponent('myLabel', myLabel)
+myFrame:addComponent('myTextBox', myTextBox)
+myFrame:addComponent('myOkayButton', myOkayButton)
+myFrame:addComponent('myCancelButton', myCancelButton)
+myApplication:addFrame('myFrame', myFrame)
+myApplication:focusFrame('myFrame')
+		
+-- Start application
+myApplication:start()

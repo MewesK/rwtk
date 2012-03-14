@@ -9,44 +9,37 @@
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_core')
 os.loadAPI('/rom/apis/rwtk_libs/rwtk_string')
 
-function drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, dontDraw, cursorX, cursorY, cursorI)
-	local returnPosition = false
-	local returnIndex = false
-	
-	if (cursorX and cursorY) then
-		returnIndex = true
-	elseif cursorI then
-		returnPosition = true
-	end
-
+function drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, dontDraw, cursorX, cursorY, cursorI)	
 	local _x = 1 - scrollX
 	local _y = 1 - scrollY
 	local _i = 1
 	local returnX, returnY, returnI
 	
+	local function checkReturn()
+		if _i == cursorI then
+			returnX = _x
+			returnY = _y
+		end
+		if _x == cursorX and _y == cursorY then
+			returnI = _i
+		end
+	end
+	
 	local function linebreak()
 		_x = 1 - scrollX
 		_y = _y + 1
 		_i = _i + 1
-		if returnPosition and _i == cursorI then
-			returnX = _x
-			returnY = _y
-		end
+		checkReturn()
 	end
 	
 	local function printCharacter(character)
-		if _x <= w and _x > 0 and _y <= h and _y > 0 and not dontDraw then
+		if not dontDraw and _x <= w and _x > 0 and _y <= h and _y > 0 then
 			term.setCursorPos(x + _x - 1, y + _y - 1)
 			term.write(character)
 		end
 		_x = _x + 1
 		_i = _i + 1
-		if returnPosition and _i == cursorI then
-			returnX = _x
-			returnY = _y
-		elseif returnIndex and _x == cursorX and _y == cursorY then
-			returnI = _i
-		end
+		checkReturn()
 	end
 	
 	-- Print lines
@@ -78,12 +71,12 @@ end
 -- String Index <=> Relative Position
 
 function relativePositionToIndex(cursorX, cursorY, text, x, y, w, h, scrollX, scrollY, wordWrap)
-	local returnX, returnY, returnI = drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, cursorX, cursorY, nil)
+	local returnX, returnY, returnI = drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, true, cursorX, cursorY, nil)
 	return returnI
 end
 
 function indexToRelativePosition(cursorI, text, x, y, w, h, scrollX, scrollY, wordWrap)
-	local returnX, returnY, returnI = drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, nil, nil, cursorI)
+	local returnX, returnY, returnI = drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, true, nil, nil, cursorI)
 	return returnX, returnY
 end
 
