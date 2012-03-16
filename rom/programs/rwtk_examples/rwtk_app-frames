@@ -56,8 +56,8 @@ myFrame = rwtk_app_frame.create({
 						text = 'Surprise',
 						keyCode = 31, -- S
 						onAction = function(self)
-							self.parent:getFrame('mySaveAsDialog').visible = true
-							self.parent:focusFrame('mySaveAsDialog')
+							self.application:getFrame('mySaveAsDialog').visible = true
+							self.application:focusFrame('mySaveAsDialog')
 						end
 					}
 				}
@@ -65,7 +65,7 @@ myFrame = rwtk_app_frame.create({
 				text = 'Exit',
 				keyCode = 18, -- E
 				onAction = function(self)
-					self.parent:stop()
+					self.application:stop()
 				end
 			}
 		}
@@ -100,7 +100,7 @@ mySaveAsDialog = rwtk_app_frame.create({
 						text = 'Close',
 						onAction = function(self)
 							self.visible = false
-							self.parent:focusFrame('myFrame')
+							self.application:focusFrame('myFrame')
 						end
 					}
 				}

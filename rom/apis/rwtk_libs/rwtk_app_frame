@@ -274,8 +274,9 @@ function frame:addComponent(name, component)
 	end
 
 	-- Add component
+	component.application = self.application
 	component.name = name
-	component.parent = self
+	component.frame = self
 	table.insert(self.components, component)
 end
 

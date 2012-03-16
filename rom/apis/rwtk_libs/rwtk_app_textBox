@@ -49,12 +49,17 @@ function textBox:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
 		rwtk_draw_text.drawText(self.text, innerX, innerY, innerWidth, innerHeight, self.scrollX, self.scrollY, self.wordWrap, false, self.cursorX, self.cursorY, nil)
 	end
 	
-	--if self.cursorX > self.
-	
 	-- Set Cursor
-	if self.focused then
-		term.setCursorBlink(true)
-		return false, innerX + self.cursorX - 1, innerY + self.cursorY - 1
+	if self.application then
+		if self.focused then
+			self.application.showCursor = true
+			self.application.cursorX = innerX + self.cursorX - 1
+			self.application.cursorY = innerY + self.cursorY - 1
+		else
+			self.application.showCursor = false
+			self.application.cursorX = 1
+			self.application.cursorY = 1
+		end
 	end
 end
 
@@ -108,7 +113,7 @@ function textBox:onKeyInternal(keyCode)
 	end
 	
 	if self.text then
-		local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(self.parent:innerDimensions(self.parent.parent.x, self.parent.parent.y, self.parent.parent.width, self.parent.parent.height))
+		local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(self.frame:innerDimensions(self.application.x, self.application.y, self.application.width, self.application.height))
 		self.cursorX, self.cursorY = rwtk_draw_text.drawText(self.text, innerX, innerY, innerWidth, innerHeight, self.scrollX, self.scrollY, self.wordWrap, false, self.cursorX, self.cursorY, nil)
 	end
 end

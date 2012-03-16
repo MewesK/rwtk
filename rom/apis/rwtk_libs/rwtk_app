@@ -89,10 +89,13 @@ application = rwtk_core.class(function(_self, properties)
 	local _width, _height = term.getSize()
 
 	-- Default properties
+	_self.cursorX = 1
+	_self.cursorY = 1
 	_self.focusIndex = 0
 	_self.height = _height
 	_self.frames = {}
 	_self.running = false
+	_self.showCursor = false
 	_self.width = _width
 	_self.x = 1
 	_self.y = 1
@@ -153,8 +156,13 @@ function application:addFrame(name, frame)
 	self:removeFrame(name)
 	
 	-- Add frame
+	frame.application = self
+	if frame.components then
+		for index, component in ipairs(frame.components) do
+			component.application = self
+		end
+	end
 	frame.name = name
-	frame.parent = self
 	table.insert(self.frames, frame)
 end
 
@@ -181,24 +189,13 @@ function application:callEvent(eventHandler, ...)
 	end
 	
 	local function _drawComponentsRecursive(components, innerX, innerY, innerWidth, innerHeight)
-		local _cursorX, _cursorY
-		local stopEvent, cursorX, cursorY
-		
-		local function __callEvent(frame, name, ...)
-			stopEvent, cursorX, cursorY = _callEvent(frame, name, ...)
-			if cursorX and cursorY then
-			_cursorX = cursorX
-			_cursorY = cursorY
-			end
-			return stopEvent
-		end
-		
+		local stopEvent
 		for index, component in ipairs(components) do
 			if component.visible then
 				local innerComponentX, innerComponentY, innerComponentWidth, innerComponentHeight = component:innerDimensions(innerX, innerY, innerWidth, innerHeight)
 				rwtk_draw.fillRectangle(innerComponentX, innerComponentY, innerComponentWidth, innerComponentHeight, ' ')
 				term.setCursorPos(innerComponentX, innerComponentY)
-				stopEvent = __callEvent(component, 'onDraw', innerComponentX, innerComponentY, innerComponentWidth, innerComponentHeight)
+				stopEvent = _callEvent(component, 'onDraw', innerComponentX, innerComponentY, innerComponentWidth, innerComponentHeight)
 				if not stopEvent then
 					if component.components then
 						cursorX, cursorY = _drawComponentsRecursive(component.components, innerComponentX, innerComponentY, innerComponentWidth, innerComponentHeight)
@@ -207,29 +204,17 @@ function application:callEvent(eventHandler, ...)
 						end
 					end
 					term.setCursorPos(innerX, innerY)
-					__callEvent(component, 'onDrawInternal', innerX, innerY, innerWidth, innerHeight)
+					_callEvent(component, 'onDrawInternal', innerX, innerY, innerWidth, innerHeight)
 				end
 			end
 		end
-		
-		return _cursorX, _cursorY
 	end
 
-	local _cursorX, _cursorY
-	local stopEvent, cursorX, cursorY
-	
-	local function __callEvent(frame, name, ...)
-		stopEvent, cursorX, cursorY = _callEvent(frame, name, ...)
-		if cursorX and cursorY then
-			_cursorX = cursorX
-			_cursorY = cursorY
-		end
-		return stopEvent
-	end
+	local stopEvent
 	
 	-- Call application handler
 	if self[eventHandler] then 
-		stopEvent, cursorX, cursorY = self[eventHandler](self, ...) 
+		stopEvent = self[eventHandler](self, ...) 
 	end
 
 	-- Call frame & component handler
@@ -240,17 +225,20 @@ function application:callEvent(eventHandler, ...)
 			term.setCursorPos(1, 1)
 			term.setCursorBlink(false)
 			if self.frames then
-				cursorX, cursorY = _drawComponentsRecursive(self.frames, self.x, self.y, self.width, self.height)
-				if cursorX and cursorY then
-					_cursorX, _cursorY = cursorX, cursorY
-				end
+				_drawComponentsRecursive(self.frames, self.x, self.y, self.width, self.height)
+			end
+			if self.showCursor then
+				term.setCursorBlink(self.showCursor)
+			end
+			if self.cursorX and self.cursorY then
+				term.setCursorPos(self.cursorX, self.cursorY)
 			end
 			
 		-- Active chain
 		else
 			-- Active frame
 			local activeFrame = self:getActiveFrame()
-			stopEvent = __callEvent(activeFrame, eventHandler, ...)
+			stopEvent = _callEvent(activeFrame, eventHandler, ...)
 			if not stopEvent then
 				stopEvent = _callEvent(activeFrame, eventHandler..'Internal', ...)
 				
