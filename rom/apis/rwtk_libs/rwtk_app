@@ -55,25 +55,59 @@ end)
 
 -- Base functions
 
-function component:innerDimensions(outerX, outerY, outerWidth, outerHeight)
-	outerX = outerX + self.x + self.padding - 1
-	outerY = outerY + self.y + self.padding - 1
-	outerWidth = self.width - 2 * self.padding
-	outerHeight = self.height - 2 * self.padding
-	return outerX, outerY, outerWidth, outerHeight
+function component:outerDimensions()
+	x = self.x
+	y = self.y
+	width = self.width
+	height = self.height
+	
+	if self.frame then
+		local innerX, innerY, innerWidth, innerHeight = self.frame.innerDimensions(self.frame)
+		x = x + innerX - 1
+		y = y + innerY - 1
+		if width > innerWidth then
+			width = innerWidth
+		end
+		if height > innerHeight then
+			height = innerHeight
+		end
+		
+	elseif self.application then
+		x = x + self.application.x - 1
+		y = y + self.application.y - 1
+		
+		if width > self.application.width then
+			width = self.application.width
+		end
+		if height > self.application.height then
+			height = self.application.height
+		end
+	end
+	
+	return x, y, width, height
 end
 
-function component:onDrawInternal(outerX, outerY, outerWidth, outerHeight, keepBackground)
-	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(outerX, outerY, outerWidth, outerHeight)
+function component:innerDimensions()
+	x, y, width, height = self:outerDimensions()
+	x = x + self.padding
+	y = y + self.padding
+	width = width - 2 * self.padding
+	height = height - 2 * self.padding
+	return x, y, width, height
+end
+
+function component:onDrawInternal(keepBackground)
+	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions()
+	local outerX, outerY, outerWidth, outerHeight = self:outerDimensions()
 
 	-- Clear
 	if not keepBackground then
-		rwtk_draw.fillRectangle(innerX, innerY, self.width, self.height, ' ')
+		rwtk_draw.fillRectangle(innerX, innerY, innerWidth, innerHeight, ' ')
 	end
 	
 	-- Draw frame
 	if self.border then
-		rwtk_draw.drawRectangle(outerX + self.x - 1, outerY + self.y - 1, self.width, self.height)
+		rwtk_draw.drawRectangle(outerX, outerY, outerWidth, outerHeight)
 	end
 end
 
@@ -188,23 +222,20 @@ function application:callEvent(eventHandler, ...)
 		end
 	end
 	
-	local function _drawComponentsRecursive(components, innerX, innerY, innerWidth, innerHeight)
+	local function _drawComponentsRecursive(components, x, y)
 		local stopEvent
 		for index, component in ipairs(components) do
 			if component.visible then
-				local innerComponentX, innerComponentY, innerComponentWidth, innerComponentHeight = component:innerDimensions(innerX, innerY, innerWidth, innerHeight)
-				rwtk_draw.fillRectangle(innerComponentX, innerComponentY, innerComponentWidth, innerComponentHeight, ' ')
-				term.setCursorPos(innerComponentX, innerComponentY)
-				stopEvent = _callEvent(component, 'onDraw', innerComponentX, innerComponentY, innerComponentWidth, innerComponentHeight)
+				local innerX, innerY, innerWidth, innerHeight = component:innerDimensions()
+				rwtk_draw.fillRectangle(innerX, innerY, innerWidth, innerHeight, ' ')
+				term.setCursorPos(innerX, innerY)
+				stopEvent = _callEvent(component, 'onDraw')
 				if not stopEvent then
 					if component.components then
-						cursorX, cursorY = _drawComponentsRecursive(component.components, innerComponentX, innerComponentY, innerComponentWidth, innerComponentHeight)
-						if cursorX and cursorY then
-							_cursorX, _cursorY = cursorX, cursorY
-						end
+						_drawComponentsRecursive(component.components, innerX, innerY)
 					end
-					term.setCursorPos(innerX, innerY)
-					_callEvent(component, 'onDrawInternal', innerX, innerY, innerWidth, innerHeight)
+					term.setCursorPos(x, y)
+					_callEvent(component, 'onDrawInternal')
 				end
 			end
 		end
@@ -222,14 +253,11 @@ function application:callEvent(eventHandler, ...)
 		-- Recursive (all visible frames, all visible components
 		if eventHandler == 'onDraw' then
 			term.clear()
-			term.setCursorPos(1, 1)
-			term.setCursorBlink(false)
+			self.showCursor = false
 			if self.frames then
-				_drawComponentsRecursive(self.frames, self.x, self.y, self.width, self.height)
+				_drawComponentsRecursive(self.frames, self.x, self.y)
 			end
-			if self.showCursor then
-				term.setCursorBlink(self.showCursor)
-			end
+			term.setCursorBlink(self.showCursor)
 			if self.cursorX and self.cursorY then
 				term.setCursorPos(self.cursorX, self.cursorY)
 			end

@@ -55,10 +55,6 @@ function textBox:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
 			self.application.showCursor = true
 			self.application.cursorX = innerX + self.cursorX - 1
 			self.application.cursorY = innerY + self.cursorY - 1
-		else
-			self.application.showCursor = false
-			self.application.cursorX = 1
-			self.application.cursorY = 1
 		end
 	end
 end

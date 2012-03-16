@@ -32,12 +32,12 @@ end)
 
 -- Base functions
 
-function pictureBox:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
+function pictureBox:onDrawInternal()
 	-- Draw base
-	self._base.onDrawInternal(self, outerX, outerY, outerWidth, outerHeight)
+	self._base.onDrawInternal(self)
 	
 	-- Draw pixels
-	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(outerX, outerY, outerWidth, outerHeight)
+	local innerX, innerY, innerWidth, innerHeight = self:innerDimensions()
 	for y = 1, # self.pictureMatrix do
 		for x = 1, # self.pictureMatrix[y] do
 			term.setCursorPos(innerX + x - 1, innerY + y - 1)

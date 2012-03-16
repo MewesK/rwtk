@@ -28,13 +28,13 @@ end)
 
 -- Base functions
 
-function label:onDrawInternal(outerX, outerY, outerWidth, outerHeight)		
+function label:onDrawInternal()
 	-- Draw base
-	self._base.onDrawInternal(self, outerX, outerY, outerWidth, outerHeight)
+	self._base.onDrawInternal(self)
 	
 	-- Draw text
 	if self.text then
-		local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(outerX, outerY, outerWidth, outerHeight)
+		local innerX, innerY, innerWidth, innerHeight = self:innerDimensions()
 		rwtk_draw_text.drawText(self.text, innerX, innerY, innerWidth, innerHeight, 0, 0, self.wordWrap)
 	end
 end

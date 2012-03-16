@@ -33,55 +33,57 @@ end)
 
 -- Base functions
 
-function frame:innerDimensions(outerX, outerY, outerWidth, outerHeight)
+function frame:innerDimensions()
 	-- Call base
-	outerX, outerY, outerWidth, outerHeight = self._base.innerDimensions(self, outerX, outerY, outerWidth, outerHeight)
+	x, y, width, height = self._base.innerDimensions(self)
 	
 	if self.title then
-		outerY = outerY + 2
-		outerHeight = outerHeight - 2
+		y = y + 2
+		height = height - 2
 	end
 	
 	if self.menu then
-		outerHeight = outerHeight - 2
+		height = height - 2
 		if self.menu.align == 'top' then
-			outerY = outerY + 2
+			y = y + 2
 		end
 	end
 	
-	return outerX, outerY, outerWidth, outerHeight
+	return x, y, width, height
 end
 
-function frame:onDrawInternal(outerX, outerY, outerWidth, outerHeight)
+function frame:onDrawInternal()
 	-- Call base
-	self._base.onDrawInternal(self, outerX, outerY, outerWidth, outerHeight, true)
+	self._base.onDrawInternal(self, true)
 	
-	local mx = outerX + self.x + self.padding - 1
-	local my = outerY + self.y + self.padding - 1
+	local outerX, outerY, outerWidth, outerHeight = self:outerDimensions()
+	
+	local mx = outerX + self.padding
+	local my = outerY + self.padding
 	
 	-- Draw title
 	if self.title then
-		rwtk_draw.drawHorizontalLine(self.x, self.y + 1 + self.padding, self.width, self.border)
-		rwtk_draw.fillRectangle(self.x + self.padding, self.y + self.padding, self.width - 2 - 2 * self.padding, 1, ' ')
-		term.setCursorPos(self.x + 1 + self.padding, self.y + self.padding)
-		term.write(rwtk_string.ellipsis(self.title, self.width - 2 - 2 * self.padding))
+		rwtk_draw.drawHorizontalLine(outerX, outerY + 1 + self.padding, outerWidth, self.border)
+		rwtk_draw.fillRectangle(outerX + self.padding, outerY + self.padding, outerWidth - 2 - 2 * self.padding, 1, ' ')
+		term.setCursorPos(outerX + 1 + self.padding, outerY + self.padding)
+		term.write(rwtk_string.ellipsis(self.title, outerWidth - 2 - 2 * self.padding))
 		my = my + 2
 	end
 	
 	-- Draw menu
 	if self.menu then
 		if self.menu.align == 'bottom' then
-			my = self.height - 1 - self.padding
+			my = outerHeight - 1 - self.padding
 		end
 	
 		-- Clear menu area
-		rwtk_draw.fillRectangle(mx, my, self.width - 2 * self.padding, 2, ' ')
+		rwtk_draw.fillRectangle(mx, my, outerWidth - 2 * self.padding, 2, ' ')
 		
 		-- Draw menu area
 		if self.menu.align == 'bottom' then
-			rwtk_draw.drawHorizontalLine(self.x, my, self.width, self.border)
+			rwtk_draw.drawHorizontalLine(self.x, my, outerWidth, self.border)
 		elseif self.menu.align == 'top' then
-			rwtk_draw.drawHorizontalLine(self.x, my + 1, self.width, self.border)
+			rwtk_draw.drawHorizontalLine(self.x, my + 1, outerWidth, self.border)
 		end
 		
 		-- Draw menu entries
