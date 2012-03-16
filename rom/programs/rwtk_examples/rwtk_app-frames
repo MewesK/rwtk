@@ -29,7 +29,8 @@ myApplication = rwtk_app.create({
 	
 	-- onKey
 	onKey = function(self, keyCode)
-		if keyCode == 18 then	-- E
+		-- Break
+		if keyCode == 197 then
 			self:stop()
 		end
 	end

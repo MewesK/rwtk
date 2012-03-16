@@ -18,6 +18,7 @@ textBox = rwtk_core.class(rwtk_app.component, function(_self, properties)
 	_self.focusable = true
 	_self.isPassword = false
 	_self.multiLine = false
+	_self.readOnly = false
 	_self.scrollX = 0
 	_self.scrollY = 0
 	_self.text = nil
