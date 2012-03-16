@@ -294,12 +294,12 @@ function application:start()
 	
 	while self.running do
 		-- Pull event
-		local event, param1, param2 = os.pullEvent()
+		local event, param1, param2, param3 = os.pullEvent()
 		
 		-- Handle event
-		self:callEvent('onEvent', event, param1, param2)
+		self:callEvent('onEvent', event, param1, param2, param3)
 		if handlerNames[event] then
-			self:callEvent(handlerNames[event], param1, param2)
+			self:callEvent(handlerNames[event], param1, param2, param3)
 		end
 		
 		-- Draw screen

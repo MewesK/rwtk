@@ -105,6 +105,11 @@ function textBox:onKeyInternal(keyCode)
 			self.text = _text
 		end
 	end
+	
+	if self.text then
+		local innerX, innerY, innerWidth, innerHeight = self:innerDimensions(self.parent:innerDimensions(self.parent.parent.x, self.parent.parent.y, self.parent.parent.width, self.parent.parent.height))
+		self.cursorX, self.cursorY = rwtk_draw_text.drawText(self.text, innerX, innerY, innerWidth, innerHeight, self.scrollX, self.scrollY, self.wordWrap, false, self.cursorX, self.cursorY, nil)
+	end
 end
 
 function textBox:onCharInternal(char)

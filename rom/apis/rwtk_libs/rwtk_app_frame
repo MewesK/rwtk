@@ -156,19 +156,14 @@ function frame:onKeyInternal(keyCode)
 				while true do
 					focusIndex = focusIndex + 1
 					if focusIndex > # self.components then
-						focusIndex = 0
-					elseif focusIndex == self.componentFocusIndex then
+						focusName = nil
 						break
-					elseif self.components[focusIndex].focusable then
+					elseif focusIndex == self.componentFocusIndex or self.components[focusIndex].focusable then
 						focusName = self.components[focusIndex].name
 						break
 					end
 				end
-				if focusName then
-					self:focusComponent(focusName)
-				else
-					self.componentFocusIndex = focusIndex
-				end
+				self:focusComponent(focusName)
 			end
 		end
 	end
@@ -285,17 +280,21 @@ function frame:addComponent(name, component)
 end
 
 function frame:focusComponent(name)
+	-- DeFocus old component
+	if self.componentFocusIndex > 0 then
+		self.components[self.componentFocusIndex].focused = false
+	end
+	
 	-- Get component
-	local component, index = self:getComponent(name)
-	if component then
-		-- DeFocus old component
-		if self.componentFocusIndex > 0 then
-			self.components[self.componentFocusIndex].focused = false
+	if name then
+		local component, index = self:getComponent(name)
+		if component then
+			-- Focus new component
+			component.focused = true;
+			self.componentFocusIndex = index
 		end
-		
-		-- Focus new component
-		component.focused = true;
-		self.componentFocusIndex = index
+	else
+		self.componentFocusIndex = 0
 	end
 end
 

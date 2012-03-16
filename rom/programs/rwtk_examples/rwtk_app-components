@@ -12,8 +12,6 @@ local myTextBox
 local myOkayButton
 local myCancelButton
 
-local pictureIndex = 0
-
 -- Create Application
 myApplication = rwtk_app.create({
 	-- onKey
@@ -61,7 +59,7 @@ myOkayButton = rwtk_app_button.create({
 	onKey = function(self, keyCode)
 		-- Enter
 		if keyCode == 28 then
-			myLabel.text = 'Okay'
+			myTextBox.text = 'Okay'
 		end
 	end
 })
@@ -76,7 +74,7 @@ myCancelButton = rwtk_app_button.create({
 	onKey = function(self, keyCode)
 		-- Enter
 		if keyCode == 28 then
-			myLabel.text = 'Cancel'
+			myTextBox.text = 'Cancel'
 		end
 	end
 })

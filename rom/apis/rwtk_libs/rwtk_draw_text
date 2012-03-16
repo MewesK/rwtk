@@ -13,6 +13,7 @@ function drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, dontDraw, cursor
 	local _x = 1 - scrollX
 	local _y = 1 - scrollY
 	local _i = 1
+	local _cursorX, _cursorY = cursorX, cursorY
 	local returnX, returnY, returnI
 	
 	local function checkReturn()
@@ -20,7 +21,7 @@ function drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, dontDraw, cursor
 			returnX = _x
 			returnY = _y
 		end
-		if _x == cursorX and _y == cursorY then
+		if _x == _cursorX and _y == _cursorY then
 			returnI = _i
 		end
 	end
@@ -61,8 +62,24 @@ function drawText(text, x, y, w, h, scrollX, scrollY, wordWrap, dontDraw, cursor
 			-- Print space
 			printCharacter(' ')
 		end
+		
+		if _cursorY == y + _y and _cursorX > x + _x then
+			_cursorX = x + _x
+		end
+		
+		checkReturn()
+		
 		-- End of line
 		linebreak()
+	end
+		
+	if _cursorY and _cursorY > y + _y then
+		_cursorY = y + _y
+	end
+	
+	if not returnX and not returnY and _cursorX and _cursorY then
+		returnX = _cursorX
+		returnY = _cursorY
 	end
 	
 	return returnX, returnY, returnI
